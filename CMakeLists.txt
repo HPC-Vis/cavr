@@ -17,6 +17,8 @@ ENDIF(UNIX)
 
 ADD_SUBDIRECTORY(cavr)
 #ADD_SUBDIRECTORY(plugins)
+ADD_SUBDIRECTORY(gtest-1.7.0)
+ADD_SUBDIRECTORY(tests)
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 				"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
