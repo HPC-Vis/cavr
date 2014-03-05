@@ -62,6 +62,27 @@ TEST(vector_construction, vec_constructor) {
   check(b, 7, 6, 5);
 }
 
+TEST(vector_construction, swizzle_construction) {
+  vec<int, 2> v12(1, 2);
+  vec<int, 2> v34(3, 4);
+  vec<int, 4> a(v12.xx, v12.yy);
+  check(a, 1, 1, 2, 2);
+  check(vec<int, 4>(v12, v12.xx), 1, 2, 1, 1);
+
+  vec<int, 4> b(v12.xy, v34.xy);
+  check(b, 1, 2, 3, 4);
+
+  vec<int, 3> v567(5, 6, 7);
+  vec<int, 3> c(v567.zyx);
+  check(c, 7, 6, 5);
+
+  vec<int, 3> d(v12.yyy);
+  check(d, 2, 2, 2);
+
+  vec<int, 4> e(0, v12.xxx);
+  check(e, 0, 1, 1, 1);
+}
+
 TEST(vector_assignment, vector_assignment) {
   vec<int, 4> a(1, 2, 3, 4);
   vec<int, 4> b = a;
@@ -81,6 +102,11 @@ TEST(vector_assignment, swizzle_assignment) {
   check(b, 2, 1, 2, 1);
   a = a.yx;
   check(a, 2, 1);
+  vec<int, 4> c(1, 2, 3, 4);
+  b.xzyw = c;
+  check(b, 1, 3, 2, 4);
+  c.wzyx = c.yyxx; // 2 2 1 1
+  check(c, 1, 1, 2, 2);
 }
 
 TEST(vector_addition, vector_addition) {
@@ -96,6 +122,10 @@ TEST(vector_addition, vector_addition) {
   check(c, 6, 12, 18);
   c += c.zyx;
   check(c, 24, 24, 24);
+  c = a.xxx + b.zyx;
+  check(c, 7, 6, 5);
+  c.yzx += vec<int, 3>(2, 3, 1);
+  check(c, 8, 8, 8);
 }
 
 TEST(vector_subtraction, vector_subtraction) {
@@ -111,6 +141,10 @@ TEST(vector_subtraction, vector_subtraction) {
   check(c, 0, 0, 0);
   c -= b.xzy;
   check(c, -4, -6, -5);
+  c = b.zzz - a;
+  check(c, 5, 4, 3);
+  c.zyx -= a.zyx;
+  check(c, 4, 2, 0);
 }
 
 TEST(vector_negation, vector_negation) {
@@ -118,6 +152,8 @@ TEST(vector_negation, vector_negation) {
   vec<int, 3> b = -a;
   check(b, -1, -2, -3);
   check(a, 1, 2, 3);
+  check(-a.zyx, -3, -2, -1);
+  check(-(a.zyx), -3, -2, -1);
 }
 
 TEST(vector_multiplication, vector_multiplication) {
@@ -128,6 +164,8 @@ TEST(vector_multiplication, vector_multiplication) {
   b *= 10;
   check(b, 40, 80, 120);
   check(2 * a, 2, 4, 6);
+  check(a.yxz * 2, 4, 2, 6);
+  check(2 * a.zzy, 6, 6, 4);
 }
 
 TEST(vector_division, vector_division) {
@@ -136,6 +174,7 @@ TEST(vector_division, vector_division) {
   check(b, 1, 2, 3);
   b = a / 2.0;
   check(b, 1, 3, 4);
+  check(a.zyx / 3, 3, 2, 1);
 }
 
 TEST(vector_dot_product, vector_dot_product) {
@@ -145,6 +184,7 @@ TEST(vector_dot_product, vector_dot_product) {
   EXPECT_EQ(32, d);
   check(a, 1, 2, 3);
   check(b, 4, 5, 6);
+  EXPECT_EQ(18, a.zzz.dot(a));
 }
 
 TEST(vector_cross_product, vector_cross_product) {
@@ -155,36 +195,6 @@ TEST(vector_cross_product, vector_cross_product) {
   a = vec<int, 3>(1, 2, 3);
   check(a.cross(a), 0, 0, 0);
   check(a, 1, 2, 3);
+  check(b.yxx.cross(b), 0, 0, 1);
+  check(b.cross(b.yxz), 0, 0, -1);
 }
-
-class swizzle_tests
-  : public ::testing::Test {
-public:
-  swizzle_tests()
-    : v12(1,2),
-      v34(3,4),
-      v567(5,6,7),
-      v890(8,9,0) {
-  }
-
-  vec<int, 2> v12, v34;
-  vec<int, 3> v567, v890;
-};
-
-TEST_F(swizzle_tests, vector_construction) {
-  vec<int, 4> a(v12.xx, v12.yy);
-  check(a, 1, 1, 2, 2);
-
-  vec<int, 4> b(v12.xy, v34.xy);
-  check(b, 1, 2, 3, 4);
-
-  vec<int, 3> c(v567.zyx);
-  check(c, 7, 6, 5);
-
-  vec<int, 3> d(v12.yyy);
-  check(d, 2, 2, 2);
-
-  vec<int, 4> e(0, v12.xxx);
-  check(e, 0, 1, 1, 1);
-}
-

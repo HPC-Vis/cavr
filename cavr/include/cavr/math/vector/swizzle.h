@@ -1,4 +1,5 @@
 #pragma once
+#include <cavr/math/vector/operations.h>
 #include <cavr/math/vector/traits.h>
 
 namespace cavr {
@@ -12,7 +13,8 @@ struct vec;
 namespace vector {
 
 template<typename T, int N, int... I>
-struct swizzle {
+struct swizzle 
+  : public operations<swizzle<T, N, I...>, sizeof...(I)> {
   typedef T type;
   T v[N];
   static inline int get_index(int i) {
