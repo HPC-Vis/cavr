@@ -5,7 +5,13 @@ namespace cavr {
 
 namespace math {
 
+template<typename T, int N>
+struct vec;
+
 namespace vector {
+
+template<typename T, int N, int... I>
+struct swizzle;
 
 /**
   Contains the dimensionality of a single type. Specializations should
@@ -15,6 +21,20 @@ namespace vector {
 template<typename T, typename = typename std::decay<T>::type>
 struct base_dims {
   static const int value = 1;
+};
+
+/**
+  Contains the dimensionality of a single type.
+  vec<T, N> specialization.
+*/
+template<typename U, typename T, int N>
+struct base_dims<U, vec<T, N>> {
+  static const int value = N;
+};
+
+template<typename U, typename T, int N, int... I>
+struct base_dims<U, swizzle<T, N, I...>> {
+  static const int value = sizeof...(I);
 };
 
 /**
