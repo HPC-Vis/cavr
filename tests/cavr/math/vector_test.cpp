@@ -147,6 +147,16 @@ TEST(vector_dot_product, vector_dot_product) {
   check(b, 4, 5, 6);
 }
 
+TEST(vector_cross_product, vector_cross_product) {
+  vec<int, 3> a(1, 0, 0);
+  vec<int, 3> b(0, 1, 0);
+  check(a.cross(b), 0, 0, 1);
+  check(b.cross(a), 0, 0, -1);
+  a = vec<int, 3>(1, 2, 3);
+  check(a.cross(a), 0, 0, 0);
+  check(a, 1, 2, 3);
+}
+
 class swizzle_tests
   : public ::testing::Test {
 public:

@@ -177,6 +177,16 @@ struct vec
     return result;
   }
 
+  template<typename U,
+           typename =
+             typename std::enable_if<vector::dims<U>::value == 3>::type>
+  inline typename vector_op<U>::return_type cross(const U& u) const {
+    const vec& s = *this;
+    return typename vector_op<U>::return_type(s[1] * u[2] - u[1] * s[2],
+                                              s[2] * u[0] - u[2] * s[0],
+                                              s[0] * u[1] - u[0] * s[1]);
+  }
+
   inline const T& operator[](int i) const {
     return this->v[i];
   }
