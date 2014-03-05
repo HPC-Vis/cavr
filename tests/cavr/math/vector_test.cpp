@@ -1,6 +1,7 @@
+//#include <cavr/math/vector/vector.h>
 #include <cavr/math/vector.h>
 #include "gtest/gtest.h"
-using cavr::math::vec;
+using cavr::math::vector::vec;
 
 template<typename T, typename U>
 void check(const T& v,  const U& a) {

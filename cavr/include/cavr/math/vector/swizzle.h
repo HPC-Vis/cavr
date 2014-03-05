@@ -6,11 +6,11 @@ namespace cavr {
 
 namespace math {
 
+namespace vector {
+
 // Forward declaration
 template<typename T, int N>
 struct vec;
-
-namespace vector {
 
 template<typename T, int N, int... I>
 struct swizzle 

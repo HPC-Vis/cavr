@@ -1,45 +1,29 @@
 #pragma once
-#include <cavr/math/vector/data.h>
-#include <cavr/math/vector/operations.h>
-#include <cavr/math/vector/utils.h>
+#include <cavr/math/vector/vector.h>
 
 namespace cavr {
 
 namespace math {
 
-template<typename T, int N>
-struct vec
-  : public vector::data<T, N>,
-    public vector::operations<vec<T, N>, N> {
-  typedef T type;
+extern template struct vector::vec<int, 2>;
+extern template struct vector::vec<int, 3>;
+extern template struct vector::vec<int, 4>;
+extern template struct vector::vec<float, 2>;
+extern template struct vector::vec<float, 3>;
+extern template struct vector::vec<float, 4>;
+extern template struct vector::vec<double, 2>;
+extern template struct vector::vec<double, 3>;
+extern template struct vector::vec<double, 4>;
 
-  inline vec() {
-  }
-
-  template<typename U,
-           typename =
-             typename std::enable_if<std::is_convertible<U, T>::value>::type>
-  inline vec(const U& u) {
-    for (int i = 0; i < N; ++i) {
-      this->v[i] = u;
-    }
-  }
-
-  template<typename... U,
-           typename =
-             typename std::enable_if<vector::dims<U...>::value == N>::type>
-  inline vec(U&&... u) {
-    vector::assign(this->v, std::forward<U>(u)...);
-  }
-
-  inline const T& operator[](int i) const {
-    return this->v[i];
-  }
-
-  inline T& operator[](int i) {
-    return this->v[i];
-  }
-};
+typedef vector::vec<int, 2> vec2i;
+typedef vector::vec<int, 3> vec3i;
+typedef vector::vec<int, 4> vec4i;
+typedef vector::vec<float, 2> vec2f;
+typedef vector::vec<float, 3> vec3f;
+typedef vector::vec<float, 4> vec4f;
+typedef vector::vec<double, 2> vec2d;
+typedef vector::vec<double, 3> vec3d;
+typedef vector::vec<double, 4> vec4d;
 
 } // namespace math
 
