@@ -44,26 +44,29 @@ struct swizzle
   swizzle() = default;
 
   template<typename U>
-  inline swizzle(const U& u) {
-    assert_assignable();
-    assert_dimensionality<U>();
-    set_to_vector_(u);
-  }
+  struct is_assignable {
+    static const bool value = is_unique<I...>::value;
+  };
 
-  template<typename U>
-  inline swizzle& operator=(const U& u) {
-    assert_assignable();
-    assert_dimensionality<U>();
-    set_to_vector_(u);
-    return *this;
-  }
-
-private:
-  inline void set_to_vector_(const vec<T, sizeof...(I)>& t) {
+  template<typename U,
+           typename =
+             typename std::enable_if<dims<U>::value == sizeof...(I)>::type,
+           typename =
+             typename std::enable_if<is_assignable<U>::value>::type>
+  inline swizzle& operator=(const U& rhs) {
     swizzle& self = *this;
-    for (int i = 0; i < sizeof...(I); ++i) {
-      self[i] = t[i];
+    // check for self assigment through potential swizzling
+    if (reinterpret_cast<const swizzle*>(&rhs) == this) {
+      vec<T, sizeof...(I)> temp(rhs);
+      for (int i = 0; i < N; ++i) {
+        self[i] = temp[i];
+      }
+    } else {
+      for (int i = 0; i < N; ++i) {
+        self[i] = rhs[i];
+      }
     }
+    return *this;
   }
 };
 

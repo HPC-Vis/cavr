@@ -18,10 +18,10 @@ struct operations {
            typename =
              typename std::enable_if<vector::dims<U>::value == N>::type>
   inline T& operator=(const U& rhs) {
-    T& self = *this;
+    T& self = *static_cast<T*>(this);
     // check for self assigment through potential swizzling
     if (reinterpret_cast<const T*>(&rhs) == this) {
-      T temp(rhs);
+      vec<typename T::type, N> temp(rhs);
       for (int i = 0; i < N; ++i) {
         self[i] = temp[i];
       }
@@ -30,7 +30,7 @@ struct operations {
         self[i] = rhs[i];
       }
     }
-    return *this;
+    return *static_cast<T*>(this);
   }
 
   template<typename U,
@@ -71,7 +71,7 @@ struct operations {
     T& self = *static_cast<T*>(this);
     // check for self assignment through potential swizzling
     if (reinterpret_cast<const T*>(&rhs) == this) {
-      T temp(rhs);
+      vec<typename T::type, N> temp(rhs);
       for (int i = 0; i < N; ++i) {
         self[i] += temp[i];
       }
@@ -95,7 +95,7 @@ struct operations {
     T& self = *static_cast<T*>(this);
     // check for self assignment through potential swizzling
     if (reinterpret_cast<const T*>(&rhs) == this) {
-      T temp(rhs);
+      vec<typename T::type, N> temp(rhs);
       for (int i = 0; i < N; ++i) {
         self[i] -= temp[i];
       }
