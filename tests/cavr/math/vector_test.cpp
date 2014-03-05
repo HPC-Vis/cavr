@@ -120,6 +120,16 @@ TEST(vector_negation, vector_negation) {
   check(a, 1, 2, 3);
 }
 
+TEST(vector_multiplication, vector_multiplication) {
+  vec<int, 3> a(1, 2, 3);
+  vec<int, 3> b = a * 4;
+  check(b, 4, 8, 12);
+  check(a, 1, 2, 3);
+  b *= 10;
+  check(b, 40, 80, 120);
+  check(2 * a, 2, 4, 6);
+}
+
 class swizzle_tests
   : public ::testing::Test {
 public:
