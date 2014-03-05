@@ -62,6 +62,39 @@ TEST(vector_construction, vec_constructor) {
   check(b, 7, 6, 5);
 }
 
+TEST(vector_assignment, vector_assignment) {
+  vec<int, 4> a(1, 2, 3, 4);
+  vec<int, 4> b = a;
+  check(b, 1, 2, 3, 4);
+  vec<float, 4> c(5, 6, 7, 8);
+  b = c;
+  check(b, 5, 6, 7, 8);
+  c = (b = a);
+  check(c, 1, 2, 3, 4);
+}
+
+TEST(vector_assignment, swizzle_assignment) {
+  vec<int, 2> a(1, 2);
+  vec<int, 4> b = a.rrrr;
+  check(b, 1, 1, 1, 1);
+  b = a.yxyx;
+  check(b, 2, 1, 2, 1);
+  a = a.yx;
+  check(a, 2, 1);
+}
+
+TEST(vector_addition, vector_addition) {
+  vec<int, 3> a(1, 2, 3);
+  vec<int, 3> b(4, 5, 6);
+  vec<int, 3> c = a + b;
+  check(c, 5, 7, 9);
+  c = a + a;
+  check(c, 2, 4, 6);
+  c += a;
+  check(c, 3, 6, 9);
+  c += c;
+}
+
 class swizzle_tests
   : public ::testing::Test {
 public:
