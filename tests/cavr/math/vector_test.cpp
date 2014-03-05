@@ -130,6 +130,14 @@ TEST(vector_multiplication, vector_multiplication) {
   check(2 * a, 2, 4, 6);
 }
 
+TEST(vector_division, vector_division) {
+  vec<int, 3> a(3, 6, 9);
+  vec<int, 3> b = a / 3;
+  check(b, 1, 2, 3);
+  b = a / 2.0;
+  check(b, 1, 3, 4);
+}
+
 class swizzle_tests
   : public ::testing::Test {
 public:

@@ -141,6 +141,22 @@ struct vec
     return r * u;
   }
 
+  template<typename U>
+  inline typename vector_scalar_op<U>::return_type operator/(const U& u) const {
+    typename vector_scalar_op<U>::return_type result(*this);
+    result /= u;
+    return result;
+  }
+
+  template<typename U>
+  vec& operator/=(const U& u) {
+    vec& self = *this;
+    for (int i = 0; i < N; ++i) {
+      self[i] /= u;
+    }
+    return *this;
+  }
+
   inline const T& operator[](int i) const {
     return this->v[i];
   }
