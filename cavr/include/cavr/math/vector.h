@@ -81,6 +81,38 @@ struct vec
     return *this;
   }
 
+  template<typename U>
+  inline typename vector_op<U>::return_type operator-(const U& rhs) {
+    typename vector_op<U>::return_type result(*this);
+    result -= rhs;
+    return result;
+  }
+
+  template<typename U>
+  inline vec& operator-=(const U& rhs) {
+    vec& self = *this;
+    // check for self assignment through potential swizzling
+    if (reinterpret_cast<const vec*>(&rhs) == this) {
+      vec temp(rhs);
+      for (int i = 0; i < N; ++i) {
+        self[i] -= temp[i];
+      }
+    } else {
+      for (int i = 0; i < N; ++i) {
+        self[i] -= rhs[i];
+      }
+    }
+    return *this;
+  }
+
+  inline vec operator-() {
+    vec result(*this);
+    for (int i = 0; i < N; ++i) {
+      result[i] = -result[i];
+    }
+    return result;
+  }
+
   inline const T& operator[](int i) const {
     return this->v[i];
   }

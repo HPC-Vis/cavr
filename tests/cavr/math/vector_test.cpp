@@ -93,6 +93,31 @@ TEST(vector_addition, vector_addition) {
   c += a;
   check(c, 3, 6, 9);
   c += c;
+  check(c, 6, 12, 18);
+  c += c.zyx;
+  check(c, 24, 24, 24);
+}
+
+TEST(vector_subtraction, vector_subtraction) {
+  vec<int, 3> a(1, 2, 3);
+  vec<int, 3> b(4, 5, 6);
+  vec<int, 3> c = a - b;
+  check(c, -3, -3, -3);
+  c = a - a;
+  check(c, 0, 0, 0);
+  c -= a;
+  check(c, -1, -2, -3);
+  c -= c;
+  check(c, 0, 0, 0);
+  c -= b.xzy;
+  check(c, -4, -6, -5);
+}
+
+TEST(vector_negation, vector_negation) {
+  vec<int, 3> a(1, 2, 3);
+  vec<int, 3> b = -a;
+  check(b, -1, -2, -3);
+  check(a, 1, 2, 3);
 }
 
 class swizzle_tests
