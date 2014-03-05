@@ -138,6 +138,15 @@ TEST(vector_division, vector_division) {
   check(b, 1, 3, 4);
 }
 
+TEST(vector_dot_product, vector_dot_product) {
+  vec<int, 3> a(1, 2, 3);
+  vec<int, 3> b(4, 5, 6);
+  int d = a.dot(b);
+  EXPECT_EQ(32, d);
+  check(a, 1, 2, 3);
+  check(b, 4, 5, 6);
+}
+
 class swizzle_tests
   : public ::testing::Test {
 public:

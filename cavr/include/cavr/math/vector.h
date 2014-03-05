@@ -58,9 +58,19 @@ struct vec
   };
 
   template<typename U,
-           typename V = typename std::common_type<U, T>::type>
+           typename V = typename std::common_type<U, T>::type,
+           typename =
+             typename std::enable_if<vector::dims<U>::value == 1>::type>
   struct vector_scalar_op {
     typedef vec<V, N> return_type;
+  };
+
+  template<typename U,
+           typename =
+             typename std::enable_if<vector::dims<U>::value == N>::type>
+  struct vector_dot_op {
+    typedef typename U::type U_type;
+    typedef typename std::common_type<U_type, T>::type return_type;
   };
 
   template<typename U>
@@ -149,12 +159,22 @@ struct vec
   }
 
   template<typename U>
-  vec& operator/=(const U& u) {
+  inline vec& operator/=(const U& u) {
     vec& self = *this;
     for (int i = 0; i < N; ++i) {
       self[i] /= u;
     }
     return *this;
+  }
+
+  template<typename U>
+  inline typename vector_dot_op<U>::return_type dot(const U& u) const {
+    typename vector_dot_op<U>::return_type result = 0;
+    const vec& self = *this;
+    for (int i = 0; i < N; ++i) {
+      result += self[i] * u[i];
+    }
+    return result;
   }
 
   inline const T& operator[](int i) const {
