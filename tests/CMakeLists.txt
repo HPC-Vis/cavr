@@ -9,4 +9,4 @@ SET(test_sources
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
 ADD_EXECUTABLE(tests ${test_sources})
-TARGET_LINK_LIBRARIES(tests gtest_main)
+TARGET_LINK_LIBRARIES(tests gtest_main cavr)

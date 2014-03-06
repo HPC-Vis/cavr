@@ -58,11 +58,11 @@ struct swizzle
     // check for self assigment through potential swizzling
     if (reinterpret_cast<const swizzle*>(&rhs) == this) {
       vec<T, sizeof...(I)> temp(rhs);
-      for (int i = 0; i < N; ++i) {
+      for (int i = 0; i < sizeof...(I); ++i) {
         self[i] = temp[i];
       }
     } else {
-      for (int i = 0; i < N; ++i) {
+      for (int i = 0; i < sizeof...(I); ++i) {
         self[i] = rhs[i];
       }
     }

@@ -131,3 +131,11 @@ TEST(matrix_division, scalar_division) {
   check_vector(a[0], 0, 1, 2);
   check_vector(a[1], 3, 4, 5);
 }
+
+TEST(homogeneous_matrix, translation) {
+  mat<int, 4, 4> a = mat<int, 4, 4>::translate(4, 3, 2);
+  check_vector(a.row(0), 1, 0, 0, 4);
+  check_vector(a.row(1), 0, 1, 0, 3);
+  check_vector(a.row(2), 0, 0, 1, 2);
+  check_vector(a.row(3), 0, 0, 0, 1);
+}

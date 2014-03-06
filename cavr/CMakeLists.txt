@@ -8,6 +8,7 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
 
 SET(cavr_sources
+    "source/math/matrix.cpp"
     "source/math/vector.cpp"
 )
 

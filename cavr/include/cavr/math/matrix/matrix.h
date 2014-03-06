@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <iostream>
 
 #include <cavr/math/vector/traits.h>
 #include <cavr/math/vector/vector.h>
@@ -10,20 +11,37 @@ namespace math {
 
 namespace matrix {
 
+template<typename T, typename M, bool H = false>
+struct homogeneous_matrix {
+};
+
+template<typename T, typename M>
+struct homogeneous_matrix<T, M, true> {
+  template<typename... U,
+           typename =
+             typename std::enable_if<vector::dims<U...>::value == 3>::type>
+  static inline M translate(U&&... u) {
+    M result(1);
+    result[3].xyz = vector::vec<T, 3>(std::forward<U>(u)...);
+    return result;
+  }
+};
+
 template<typename T, int C, int R>
-struct mat {
+struct mat 
+  : public homogeneous_matrix<T, mat<T, C, R>, (C == 4) && (R == 4)> {
   union {
-    T v[R* C];
+    T v[R * C];
     struct {
       vector::vec<T, R> columns[C];
     };
   };
 
-  const vector::vec<T, R>& operator[](int i) const {
+  inline const vector::vec<T, R>& operator[](int i) const {
     return columns[i];
   }
 
-  vector::vec<T, R>& operator[](int i) {
+  inline vector::vec<T, R>& operator[](int i) {
     return columns[i];
   }
 
@@ -62,7 +80,7 @@ struct mat {
     }
   }
 
-  vector::vec<T, C> row(int i) const {
+  inline vector::vec<T, C> row(int i) const {
     vector::vec<T, C> result;
     for (int c = 0; c < C; ++c) {
       result[c] = columns[c][i];
@@ -70,7 +88,7 @@ struct mat {
     return result;
   }
 
-  mat<T, R, C> transpose() const {
+  inline mat<T, R, C> transpose() const {
     mat<T, R, C> result;
     for (int r = 0; r < R; ++r) {
       result[r] = row(r);
@@ -161,7 +179,7 @@ struct mat {
   }
 
 private:
-  void zero_() {
+  inline void zero_() {
     for (int i = 0; i < R * C; ++i) {
       v[i] = 0;
     }

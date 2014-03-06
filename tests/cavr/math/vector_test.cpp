@@ -90,6 +90,8 @@ TEST(vector_assignment, swizzle_assignment) {
   check_vector(b, 1, 3, 2, 4);
   c.wzyx = c.yyxx; // 2 2 1 1
   check_vector(c, 1, 1, 2, 2);
+  c.xyz = vec<int, 3>(3);
+  check_vector(c, 3, 3, 3, 2);
 }
 
 TEST(vector_addition, vector_addition) {
