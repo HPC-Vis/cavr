@@ -26,6 +26,10 @@ void check(const T& v,  const U& a, const U& b, const U& c, const U& d) {
   check(v, a, b, c);
 }
 
+TEST(vector_size, vector_size) {
+  EXPECT_EQ(sizeof(int) * 3, sizeof(vec<int, 3>));
+}
+
 TEST(vector_construction, default_constructor) {
   vec<int, 3> a;
   vec<float, 2> b;
