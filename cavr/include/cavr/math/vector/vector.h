@@ -12,7 +12,7 @@ namespace vector {
 template<typename T, int N>
 struct vec
   : public vector::data<T, N>,
-    public vector::operations<vec<T, N>, N> {
+    public vector::operations<vec<T, N>, T, N> {
   typedef T type;
 
   inline vec() {

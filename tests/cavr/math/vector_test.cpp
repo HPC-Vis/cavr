@@ -183,3 +183,11 @@ TEST(vector_cross_product, vector_cross_product) {
   check_vector(b.yxx.cross(b), 0, 0, 1);
   check_vector(b.cross(b.yxz), 0, 0, -1);
 }
+
+TEST(vector_normalization, vector_normalization) {
+  vec<int, 3> a(3, 4, 0);
+  EXPECT_EQ(25, a.length_squared());
+  EXPECT_EQ(5, a.length());
+  vec<int, 2> b(100, 0);
+  check_vector(b.normalized(), 1, 0);
+}

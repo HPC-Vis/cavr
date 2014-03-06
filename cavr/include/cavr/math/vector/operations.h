@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <type_traits>
 
 #include <cavr/math/vector/traits.h>
@@ -12,7 +13,7 @@ namespace vector {
 template<typename T, int N>
 struct vec;
 
-template<typename T, int N>
+template<typename T, typename S, int N>
 struct operations {
   template<typename U,
            typename =
@@ -173,6 +174,24 @@ struct operations {
     return typename vector_op<U>::return_type(s[1] * u[2] - u[1] * s[2],
                                               s[2] * u[0] - u[2] * s[0],
                                               s[0] * u[1] - u[0] * s[1]);
+  }
+
+  inline S length_squared() const {
+    S result = 0;
+    const T& self = *static_cast<const T*>(this);
+    for (int i = 0; i < N; ++i) {
+      result += self[i] * self[i];
+    }
+    return result;
+  }
+
+  inline S length() const {
+    return std::sqrt(length_squared());
+  }
+
+  inline vec<S, N> normalized() const {
+    vec<S, N> result(*static_cast<const T*>(this));
+    return result / result.length();
   }
 };
 

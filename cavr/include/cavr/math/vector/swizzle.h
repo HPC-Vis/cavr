@@ -14,7 +14,7 @@ struct vec;
 
 template<typename T, int N, int... I>
 struct swizzle 
-  : public operations<swizzle<T, N, I...>, sizeof...(I)> {
+  : public operations<swizzle<T, N, I...>, T, sizeof...(I)> {
   typedef T type;
   T v[N];
   static inline int get_index(int i) {
