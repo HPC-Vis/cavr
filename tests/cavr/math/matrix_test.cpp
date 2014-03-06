@@ -119,3 +119,15 @@ TEST(matrix_multiplication, scalar_multiplication) {
   check_vector(c[0], 0, 2, 4);
   check_vector(c[1], 6, 8, 10);
 }
+
+TEST(matrix_division, scalar_division) {
+  mat<int, 2, 3> a(0, 2, 4, 6, 8, 10);
+  mat<int, 2, 3> b = a / 2;
+  check_vector(b[0], 0, 1, 2);
+  check_vector(b[1], 3, 4, 5);
+  check_vector(a[0], 0, 2, 4);
+  check_vector(a[1], 6, 8, 10);
+  a /= 2;
+  check_vector(a[0], 0, 1, 2);
+  check_vector(a[1], 3, 4, 5);
+}

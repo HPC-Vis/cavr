@@ -140,6 +140,26 @@ struct mat {
     return r * u;
   }
 
+  template<typename U>
+  inline mat<typename std::common_type<T, U>::type, C, R>
+  operator/(const U& u) const {
+    mat<typename std::common_type<T, U>::type, C, R> result(*this);
+    for (int i = 0; i < C * R; ++i) {
+      result.v[i] /= u;
+    }
+    return result;
+  }
+
+  template<typename U,
+           typename =
+             typename std::enable_if<std::is_convertible<U, T>::value>::type>
+  inline mat& operator/=(const U& u) {
+    for (int i = 0; i < C * R; ++i) {
+      v[i] /= u;
+    }
+    return *this;
+  }
+
 private:
   void zero_() {
     for (int i = 0; i < R * C; ++i) {
