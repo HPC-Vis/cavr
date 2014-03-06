@@ -62,6 +62,29 @@ struct mat {
     }
   }
 
+  vector::vec<T, C> row(int i) const {
+    vector::vec<T, C> result;
+    for (int c = 0; c < C; ++c) {
+      result[c] = columns[c][i];
+    }
+    return result;
+  }
+
+  mat<T, R, C> transpose() const {
+    mat<T, R, C> result;
+    for (int r = 0; r < R; ++r) {
+      result[r] = row(r);
+    }
+    return result;
+  }
+
+  template<typename U>
+  inline mat& operator=(const mat<U, C, R>& rhs) {
+    for (int i = 0; i < C * R; ++i) {
+      v[i] = rhs.v[i];
+    }
+  }
+
 private:
   void zero_() {
     for (int i = 0; i < R * C; ++i) {
