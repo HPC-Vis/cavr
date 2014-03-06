@@ -105,3 +105,17 @@ TEST(matrix_multiplication, square_multiplication) {
   check_vector(a.row(0), 2, 6);
   check_vector(a.row(1), 3, 11);
 }
+
+TEST(matrix_multiplication, scalar_multiplication) {
+  mat<int, 2, 3> a(0, 1, 2, 3, 4, 5);
+  mat<int, 2, 3> b = a * 2;
+  check_vector(b[0], 0, 2, 4);
+  check_vector(b[1], 6, 8, 10);
+  mat<int, 2, 3> c = a;
+  c *= 3;
+  check_vector(c[0], 0, 3, 6);
+  check_vector(c[1], 9, 12, 15);
+  c = 2 * a;
+  check_vector(c[0], 0, 2, 4);
+  check_vector(c[1], 6, 8, 10);
+}

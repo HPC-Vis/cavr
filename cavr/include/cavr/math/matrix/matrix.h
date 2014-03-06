@@ -11,24 +11,7 @@ namespace math {
 namespace matrix {
 
 template<typename T, int C, int R>
-struct mat;
-
-template<typename T, int C, int R, typename M>
-struct square_matrix {
-};
-
-template<typename T, int N, typename M>
-struct square_matrix<T, N, N, M> {
-  template<typename U>
-  M& operator*=(const mat<U, N, N>& m) {
-    *static_cast<M*>(this) = *static_cast<M*>(this) * m;
-    return *static_cast<M*>(this);
-  }
-};
-
-template<typename T, int C, int R>
-struct mat
-  : public square_matrix<T, C, R, mat<T, C, R>> {
+struct mat {
   union {
     T v[R* C];
     struct {
@@ -104,7 +87,7 @@ struct mat
 
   template<typename U, int CU>
   inline mat<typename std::common_type<T, U>::type, CU, R>
-  operator*(const mat<U, CU, C>& u) {
+  operator*(const mat<U, CU, C>& u) const {
     mat<typename std::common_type<T, U>::type, CU, R> result;
     for (int r = 0; r < R; ++r) {
       const auto row_vector = row(r);
@@ -114,6 +97,47 @@ struct mat
       }
     }
     return result;
+  }
+
+  template<typename U>
+  inline mat<typename std::common_type<T, U>::type, C, R>
+  operator*(const U& u) const {
+    mat<typename std::common_type<T, U>::type, C, R> result(*this);
+    for (int i = 0; i < C * R; ++i) {
+      result.v[i] *= u;
+    }
+    return result;
+  }
+
+  template<typename U,
+           typename =
+             typename std::enable_if<std::is_convertible<U, T>::value>::type>
+  inline mat& operator*=(const U& u) {
+    for (int i = 0; i < C * R; ++i) {
+      v[i] *= u;
+    }
+    return *this;
+  }
+
+  template<typename U>
+  struct is_square {
+    static const bool value = (C == R);
+  };
+
+  template<typename U,
+           typename =
+             typename std::enable_if<is_square<U>::value>::type>
+  inline mat& operator*=(const mat<U, C, R>& m) {
+    *this = *this * m;
+    return *this;
+  }
+
+  template<typename U,
+           typename =
+             typename std::enable_if<std::is_convertible<U, T>::value>::type>
+  friend inline mat<typename std::common_type<T, U>::type, C, R>
+  operator*(const U& u, const mat& r) {
+    return r * u;
   }
 
 private:
