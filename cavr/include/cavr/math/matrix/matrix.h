@@ -11,7 +11,24 @@ namespace math {
 namespace matrix {
 
 template<typename T, int C, int R>
-struct mat {
+struct mat;
+
+template<typename T, int C, int R, typename M>
+struct square_matrix {
+};
+
+template<typename T, int N, typename M>
+struct square_matrix<T, N, N, M> {
+  template<typename U>
+  M& operator*=(const mat<U, N, N>& m) {
+    *static_cast<M*>(this) = *static_cast<M*>(this) * m;
+    return *static_cast<M*>(this);
+  }
+};
+
+template<typename T, int C, int R>
+struct mat
+  : public square_matrix<T, C, R, mat<T, C, R>> {
   union {
     T v[R* C];
     struct {
@@ -83,6 +100,20 @@ struct mat {
     for (int i = 0; i < C * R; ++i) {
       v[i] = rhs.v[i];
     }
+  }
+
+  template<typename U, int CU>
+  inline mat<typename std::common_type<T, U>::type, CU, R>
+  operator*(const mat<U, CU, C>& u) {
+    mat<typename std::common_type<T, U>::type, CU, R> result;
+    for (int r = 0; r < R; ++r) {
+      const auto row_vector = row(r);
+      for (int c = 0; c < CU; ++c) {
+        const auto& column_vector = u[c];
+        result[c][r] = row_vector.dot(column_vector);
+      }
+    }
+    return result;
   }
 
 private:

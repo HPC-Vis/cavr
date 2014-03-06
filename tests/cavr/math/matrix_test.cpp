@@ -81,3 +81,27 @@ TEST(matrix_transpose, matrix_transpose) {
   check_vector(t.row(0), 0, 1, 2, 3);
   check_vector(t.row(1), 4, 5, 6, 7);
 }
+
+TEST(matrix_multiplication, matrix_multiplication) {
+  mat<int, 2, 3> a(0, 1, 2, 3, 4, 5);
+  mat<int, 4, 2> b(1, 2, 2, 0, 2, 0, 1, 3);
+  mat<int, 4, 3> c = a * b;
+  check_vector(c.row(0), 6, 0, 0, 9);
+  check_vector(c.row(1), 9, 2, 2, 13);
+  check_vector(c.row(2), 12, 4, 4, 17);
+}
+
+TEST(matrix_multiplication, square_multiplication) {
+  mat<int, 2, 2> a(0, 1, 2, 3);
+  mat<int, 2, 2> b(4, 5, 6, 7);
+  mat<int, 2, 2> c = a * b;
+  check_vector(c.row(0), 10, 14);
+  check_vector(c.row(1), 19, 27);
+  c = a;
+  c *= a;
+  check_vector(c.row(0), 2, 6);
+  check_vector(c.row(1), 3, 11);
+  a *= a;
+  check_vector(a.row(0), 2, 6);
+  check_vector(a.row(1), 3, 11);
+}
