@@ -25,6 +25,41 @@ struct homogeneous_matrix<T, M, true> {
     result[3].xyz = vector::vec<T, 3>(std::forward<U>(u)...);
     return result;
   }
+
+  template<typename R,
+           typename... U,
+           typename =
+             typename std::enable_if<vector::dims<U...>::value == 3>::type>
+  static inline M rotate(const R& radians, U&&... u) {
+    M result(1);
+    vector::vec<T, 3> axis(std::forward<U>(u)...);
+    double cos_r = std::cos(radians);
+    double sin_r = std::sin(radians);
+    double one_minus_cos_r = 1.0 - cos_r;
+    double xx = axis.x * axis.x;
+    double xy = axis.x * axis.y;
+    double xz = axis.x * axis.z;
+    double yy = axis.y * axis.y;
+    double yz = axis.y * axis.z;
+    double zz = axis.z * axis.z;
+    double x_sin_r = axis.x * sin_r;
+    double y_sin_r = axis.y * sin_r;
+    double z_sin_r = axis.z * sin_r;
+    double xy_one_minus_cos_r = xy * one_minus_cos_r;
+    double xz_one_minus_cos_r = xz * one_minus_cos_r;
+    double yz_one_minus_cos_r = yz * one_minus_cos_r;
+    result[0][0] = cos_r + xx * one_minus_cos_r;
+    result[0][1] = xy_one_minus_cos_r + z_sin_r;
+    result[0][2] = xz_one_minus_cos_r - y_sin_r;
+    result[1][0] = xy_one_minus_cos_r - z_sin_r;
+    result[1][1] = cos_r + yy * one_minus_cos_r;
+    result[1][2] = yz_one_minus_cos_r + x_sin_r;
+    result[2][0] = xz_one_minus_cos_r + y_sin_r;
+    result[2][1] = yz_one_minus_cos_r - x_sin_r;
+    result[2][2] = cos_r + zz * one_minus_cos_r;
+    return result;
+  }
+
 };
 
 template<typename T, int C, int R>

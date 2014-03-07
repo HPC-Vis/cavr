@@ -138,4 +138,22 @@ TEST(homogeneous_matrix, translation) {
   check_vector(a.row(1), 0, 1, 0, 3);
   check_vector(a.row(2), 0, 0, 1, 2);
   check_vector(a.row(3), 0, 0, 0, 1);
+  mat<int, 4, 4> b = mat<int, 4, 4>::translate(vec<int, 3>(5, 6, 7));
+  check_vector(b.row(0), 1, 0, 0, 5);
+  check_vector(b.row(1), 0, 1, 0, 6);
+  check_vector(b.row(2), 0, 0, 1, 7);
+  check_vector(b.row(3), 0, 0, 0, 1);
+}
+
+TEST(homogeneous_matrix, rotation) {
+  mat<int, 4, 4> a = mat<int, 4, 4>::rotate(M_PI / 2, 0, 0, 1);
+  check_vector(a.row(0), 0, -1, 0, 0);
+  check_vector(a.row(1), 1, 0, 0, 0);
+  check_vector(a.row(2), 0, 0, 1, 0);
+  check_vector(a.row(3), 0, 0, 0, 1);
+  mat<int, 4, 4> b = mat<int, 4, 4>::rotate(M_PI / 2, vec<int, 3>(1, 0, 0));
+  check_vector(b.row(0), 1, 0, 0, 0);
+  check_vector(b.row(1), 0, 0, -1, 0);
+  check_vector(b.row(2), 0, 1, 0, 0);
+  check_vector(b.row(3), 0, 0, 0, 1);
 }
