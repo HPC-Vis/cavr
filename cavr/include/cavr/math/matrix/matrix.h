@@ -11,6 +11,55 @@ namespace math {
 
 namespace matrix {
 
+template<typename T, int N, typename M, bool S = false>
+struct square_matrix {
+};
+
+template<typename T, int N, typename M>
+struct square_matrix<T, N, M, true> {
+  inline M inverted(bool* success = nullptr) const {
+    // Since we can access columns easily, we invert on the transpose
+    M inverse(1.0);
+    M m = static_cast<const M*>(this)->transposed();
+    for (int c = 0; c < N; ++c) {
+      int pivot_column = c;
+      T pivot_value = m[pivot_column][c];
+      for (int d = c + 1; d < N; ++d) {
+        T d_value = m[d][c];
+        if (std::fabs(pivot_value) < std::fabs(d_value)) {
+          pivot_column = d;
+          pivot_value = d_value;
+        }
+      }
+      if (c != pivot_column) {
+        std::swap(m[c], m[pivot_column]);
+        std::swap(inverse[c], inverse[pivot_column]);
+      }
+      if (pivot_value == 0) {
+        if (success) {
+          *success = false;
+        }
+        return inverse;
+      }
+      T coefficient = T(1) / pivot_value;
+      m[c] *= coefficient;
+      inverse[c] *= coefficient;
+      for (int d = 0; d < N; ++d) {
+        if (d == c) {
+          continue;
+        }
+        T mults = m[d][c];
+        m[d] -= mults * m[c];
+        inverse[d] -= mults * inverse[c];
+      }
+    }
+    if (success) {
+      *success = true;
+    }
+    return inverse.transposed();
+  };
+};
+
 template<typename T, typename M, bool H = false>
 struct homogeneous_matrix {
 };
@@ -60,77 +109,82 @@ struct homogeneous_matrix<T, M, true> {
     return result;
   }
 
-    template<typename E,
-             typename L,
-             typename U,
-             typename =
-               typename std::enable_if<vector::dims<E>::value == 3>::type,
-             typename =
-               typename std::enable_if<vector::dims<L>::value == 3>::type,
-             typename =
-               typename std::enable_if<vector::dims<U>::value == 3>::type>
-    static inline M look_at(const E& eye_point,
-                            const L& look_point,
-                            const U& up_direction) {
-      auto z_axis = (look_point - eye_point).normalized();
-      auto x_axis = z_axis.cross(up_direction.normalized()).normalized();
-      auto y_axis = x_axis.cross(z_axis).normalized();
-      M result(1);
-      result[0][0] = x_axis.x;
-      result[0][1] = y_axis.x;
-      result[0][2] = -z_axis.x;
+  template<typename E,
+           typename L,
+           typename U,
+           typename =
+             typename std::enable_if<vector::dims<E>::value == 3>::type,
+           typename =
+             typename std::enable_if<vector::dims<L>::value == 3>::type,
+           typename =
+             typename std::enable_if<vector::dims<U>::value == 3>::type>
+  static inline M look_at(const E& eye_point,
+                          const L& look_point,
+                          const U& up_direction) {
+    vector::vec<double, 3> e(eye_point);
+    vector::vec<double, 3> l(look_point);
+    vector::vec<double, 3> u(up_direction);
+    auto z_axis = (l- e).normalized();
+    auto x_axis = z_axis.cross(u.normalized());
+    x_axis = x_axis.normalized();
+    auto y_axis = x_axis.cross(z_axis).normalized();
+    M result(1);
+    result[0][0] = x_axis.x;
+    result[0][1] = y_axis.x;
+    result[0][2] = -z_axis.x;
 
-      result[1][0] = x_axis.y;
-      result[1][1] = y_axis.y;
-      result[1][2] = -z_axis.y;
+    result[1][0] = x_axis.y;
+    result[1][1] = y_axis.y;
+    result[1][2] = -z_axis.y;
 
-      result[2][0] = x_axis.z;
-      result[2][1] = y_axis.z;
-      result[2][2] = -z_axis.z;
+    result[2][0] = x_axis.z;
+    result[2][1] = y_axis.z;
+    result[2][2] = -z_axis.z;
 
-      result[3][0] = -x_axis.dot(eye_point);
-      result[3][1] = -y_axis.dot(eye_point);
-      result[3][2] = z_axis.dot(eye_point);
+    result[3][0] = -x_axis.dot(eye_point);
+    result[3][1] = -y_axis.dot(eye_point);
+    result[3][2] = z_axis.dot(eye_point);
 
-      return result;
-    }
+    return result;
+  }
 
-    static inline M ortho(double left,
-                          double right,
-                          double bottom,
-                          double top,
-                          double near,
-                          double far) {
-      double dx = right - left;
-      double dy = top - bottom;
-      double dz = far - near;
-      double tx = -(right + left) / dx;
-      double ty = -(top + bottom) / dy;
-      double tz = -(far + near) / dz;
-      M result(2.0 / dx, 0, 0, 0, // col 0
-               0, 2.0 / dy, 0, 0, // col 1
-               0, 0, -2.0 / dz, 0, // col 2,
-               tx, ty, tz, 1); // col 3
-      return result;
-    }
+  static inline M ortho(double left,
+                        double right,
+                        double bottom,
+                        double top,
+                        double near,
+                        double far) {
+    double dx = right - left;
+    double dy = top - bottom;
+    double dz = far - near;
+    double tx = -(right + left) / dx;
+    double ty = -(top + bottom) / dy;
+    double tz = -(far + near) / dz;
+    M result(2.0 / dx, 0, 0, 0, // col 0
+             0, 2.0 / dy, 0, 0, // col 1
+             0, 0, -2.0 / dz, 0, // col 2,
+             tx, ty, tz, 1); // col 3
+    return result;
+  }
 
-    static inline M perspective(double field_of_view_y_radians,
-                                double aspect_ratio,
-                                double near,
-                                double far) {
-      double f = 1.0 / std::tan(field_of_view_y_radians * 0.5);
-      double dz = near - far;
-      M result(f / aspect_ratio, 0, 0, 0, // col 0,
-               0, f, 0, 0, // col 1,
-               0, 0, (far + near) / dz, -1, // col 2,
-               0, 0, 2.0 * far * near / dz, 0); // col 3
-      return result;
-    }
+  static inline M perspective(double field_of_view_y_radians,
+                              double aspect_ratio,
+                              double near,
+                              double far) {
+    double f = 1.0 / std::tan(field_of_view_y_radians * 0.5);
+    double dz = near - far;
+    M result(f / aspect_ratio, 0, 0, 0, // col 0,
+             0, f, 0, 0, // col 1,
+             0, 0, (far + near) / dz, -1, // col 2,
+             0, 0, 2.0 * far * near / dz, 0); // col 3
+    return result;
+  }
 };
 
 template<typename T, int C, int R>
 struct mat 
-  : public homogeneous_matrix<T, mat<T, C, R>, (C == 4) && (R == 4)> {
+  : public homogeneous_matrix<T, mat<T, C, R>, (C == 4) && (R == 4)>,
+    public square_matrix<T, C, mat<T, C, R>, C == R> {
   union {
     T v[R * C];
     struct {
@@ -189,7 +243,7 @@ struct mat
     return result;
   }
 
-  inline mat<T, R, C> transpose() const {
+  inline mat<T, R, C> transposed() const {
     mat<T, R, C> result;
     for (int r = 0; r < R; ++r) {
       result[r] = row(r);

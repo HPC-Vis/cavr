@@ -9,6 +9,7 @@ namespace vector {
 
 template<typename T, int N>
 struct data {
+  T v[N];
 };
 
 template<typename T>

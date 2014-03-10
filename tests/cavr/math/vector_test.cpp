@@ -30,6 +30,9 @@ TEST(vector_construction, single_value_constructor) {
 
   vec<int, 3> w = vec<int, 3>(8);
   EXPECT_EQ(autovec(8,8,8), w);
+
+  vec<int, 7> a = vec<int, 7>(1);
+  EXPECT_EQ(autovec(1, 1, 1, 1, 1, 1, 1), a);
 }
 
 TEST(vector_construction, n_value_constructor) {

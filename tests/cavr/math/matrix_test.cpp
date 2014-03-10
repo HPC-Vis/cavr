@@ -78,7 +78,7 @@ TEST(matrix_transpose, matrix_transpose) {
   mat<int, 2, 4> m(0, 1, 2, 3, 4, 5, 6, 7);
   EXPECT_EQ(autovec(0, 1, 2, 3), m[0]);
   EXPECT_EQ(autovec(4, 5, 6, 7), m[1]);
-  mat<int, 4, 2> t = m.transpose();
+  mat<int, 4, 2> t = m.transposed();
   EXPECT_EQ(autovec(0, 1, 2, 3), t.row(0));
   EXPECT_EQ(autovec(4, 5, 6, 7), t.row(1));
 }
@@ -217,4 +217,53 @@ TEST(homogeneous_matrix, perspective) {
   EXPECT_FLOAT_EQ(0.0, a[3][1]);
   EXPECT_FLOAT_EQ(-2.5, a[3][2]);
   EXPECT_FLOAT_EQ(0.0, a[3][3]);
+}
+
+TEST(square_matrix, inversion) {
+  mat<float, 4, 4> a = mat<float, 4, 4>::look_at(autovec(1, 1, 1),
+                                                 autovec(-1, -1, -1),
+                                                 autovec(0, 1, 0));
+  bool success = false;
+  mat<float, 4, 4> inverse = a.inverted(&success);
+  EXPECT_TRUE(success);
+  auto b = inverse * a;
+  EXPECT_FLOAT_EQ(1.0, b[0][0]);
+  EXPECT_FLOAT_EQ(1.0, b[1][1]);
+  EXPECT_FLOAT_EQ(1.0, b[2][2]);
+  EXPECT_FLOAT_EQ(1.0, b[3][3]);
+  EXPECT_NEAR(0.0, b[0][1], 0.00001);
+  EXPECT_NEAR(0.0, b[0][2], 0.00001);
+  EXPECT_NEAR(0.0, b[0][3], 0.00001);
+  EXPECT_NEAR(0.0, b[1][0], 0.00001);
+  EXPECT_NEAR(0.0, b[1][2], 0.00001);
+  EXPECT_NEAR(0.0, b[1][3], 0.00001);
+  EXPECT_NEAR(0.0, b[2][0], 0.00001);
+  EXPECT_NEAR(0.0, b[2][1], 0.00001);
+  EXPECT_NEAR(0.0, b[2][3], 0.00001);
+  EXPECT_NEAR(0.0, b[3][0], 0.00001);
+  EXPECT_NEAR(0.0, b[3][1], 0.00001);
+  EXPECT_NEAR(0.0, b[3][2], 0.00001);
+
+  auto c = a * inverse;
+  EXPECT_FLOAT_EQ(1.0, c[0][0]);
+  EXPECT_FLOAT_EQ(1.0, c[1][1]);
+  EXPECT_FLOAT_EQ(1.0, c[2][2]);
+  EXPECT_FLOAT_EQ(1.0, c[3][3]);
+  EXPECT_NEAR(0.0, c[0][1], 0.00001);
+  EXPECT_NEAR(0.0, c[0][2], 0.00001);
+  EXPECT_NEAR(0.0, c[0][3], 0.00001);
+  EXPECT_NEAR(0.0, c[1][0], 0.00001);
+  EXPECT_NEAR(0.0, c[1][2], 0.00001);
+  EXPECT_NEAR(0.0, c[1][3], 0.00001);
+  EXPECT_NEAR(0.0, c[2][0], 0.00001);
+  EXPECT_NEAR(0.0, c[2][1], 0.00001);
+  EXPECT_NEAR(0.0, c[2][3], 0.00001);
+  EXPECT_NEAR(0.0, c[3][0], 0.00001);
+  EXPECT_NEAR(0.0, c[3][1], 0.00001);
+  EXPECT_NEAR(0.0, c[3][2], 0.00001);
+
+  a[0] = vec<int, 4>(0);
+  success = true;
+  inverse = a.inverted(&success);
+  EXPECT_FALSE(success);
 }
