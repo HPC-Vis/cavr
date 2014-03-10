@@ -25,6 +25,14 @@ typedef vector::vec<double, 2> vec2d;
 typedef vector::vec<double, 3> vec3d;
 typedef vector::vec<double, 4> vec4d;
 
+template<typename... U,
+         typename T = typename vector::common_type<U...>::type,
+         typename =
+           typename std::enable_if<vector::dims<U...>::value >= 1>::type>
+vector::vec<T, vector::dims<U...>::value> autovec(U&&... u) {
+  return vector::vec<T, vector::dims<U...>::value>(std::forward<U>(u)...);
+}
+
 } // namespace math
 
 } // namespace cavr

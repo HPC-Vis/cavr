@@ -60,6 +60,40 @@ struct homogeneous_matrix<T, M, true> {
     return result;
   }
 
+    template<typename E,
+             typename L,
+             typename U,
+             typename =
+               typename std::enable_if<vector::dims<E>::value == 3>::type,
+             typename =
+               typename std::enable_if<vector::dims<L>::value == 3>::type,
+             typename =
+               typename std::enable_if<vector::dims<U>::value == 3>::type>
+    static inline M look_at(const E& eye_point,
+                            const L& look_point,
+                            const U& up_direction) {
+      auto z_axis = (look_point - eye_point).normalized();
+      auto x_axis = z_axis.cross(up_direction.normalized()).normalized();
+      auto y_axis = x_axis.cross(z_axis).normalized();
+      M result(1);
+      result[0][0] = x_axis.x;
+      result[0][1] = y_axis.x;
+      result[0][2] = -z_axis.x;
+
+      result[1][0] = x_axis.y;
+      result[1][1] = y_axis.y;
+      result[1][2] = -z_axis.y;
+
+      result[2][0] = x_axis.z;
+      result[2][1] = y_axis.z;
+      result[2][2] = -z_axis.z;
+
+      result[3][0] = -x_axis.dot(eye_point);
+      result[3][1] = -y_axis.dot(eye_point);
+      result[3][2] = z_axis.dot(eye_point);
+
+      return result;
+    }
 };
 
 template<typename T, int C, int R>
@@ -211,6 +245,18 @@ struct mat
       v[i] /= u;
     }
     return *this;
+  }
+
+  template<typename U,
+           typename =
+             typename std::enable_if<vector::dims<U>::value == C>::type>
+  inline vector::vec<typename std::common_type<T, typename U::type>::type, R>
+  operator *(const U& u) {
+    vector::vec<typename std::common_type<T, typename U::type>::type, R> result;
+    for (int r = 0; r < R; ++r) {
+      result[r] = row(r).dot(u);
+    }
+    return result;
   }
 
 private:

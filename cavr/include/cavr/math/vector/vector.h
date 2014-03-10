@@ -41,6 +41,16 @@ struct vec
   inline T& operator[](int i) {
     return this->v[i];
   }
+
+  friend inline std::ostream& operator<<(std::ostream& os,
+                                         const vec& v) {
+    os << "vec" << N << "(";
+    for (int i = 0; i < N - 1; ++i) {
+      os << v[i] << ",";
+    }
+    os << v[N - 1] << ")";
+    return os;
+  }
 };
 
 } // namespace vector

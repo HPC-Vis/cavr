@@ -68,6 +68,20 @@ struct swizzle
     }
     return *this;
   }
+
+  friend inline std::ostream& operator<<(std::ostream& os,
+                                         const swizzle& s) {
+    os << "vec" << N << "::swizzle[";
+    for (int i = 0; i < sizeof...(I) - 1; ++i) {
+      os << get_index(i) << ".";
+    }
+    os << get_index(sizeof...(I) - 1) << "](";
+    for (int i = 0; i < N - 1; ++i) {
+      os << s[i] << ",";
+    }
+    os << s[N - 1] << ")";
+    return os;
+  }
 };
 
 } // namespace vector

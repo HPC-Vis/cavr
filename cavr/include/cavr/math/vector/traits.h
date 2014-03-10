@@ -112,6 +112,37 @@ struct is_unique<> {
   static const bool value = true;
 };
 
+template<typename T, typename U = typename std::decay<T>::type>
+struct scalar_type {
+  typedef U type;
+};
+
+template<typename U, typename T, int N>
+struct scalar_type<U, vec<T, N>> {
+  typedef T type;
+};
+
+template<typename U, typename T, int N, int... I>
+struct scalar_type<U, swizzle<T, N, I...>> {
+  typedef T type;
+};
+
+template<typename... T>
+struct common_type {
+};
+
+template<typename T, typename... U>
+struct common_type<T, U...> {
+  typedef typename scalar_type<T>::type T_type;
+  typedef typename common_type<U...>::type U_type;
+  typedef typename std::common_type<T_type, U_type>::type type;
+};
+
+template<typename T>
+struct common_type<T> {
+  typedef typename scalar_type<T>::type type;
+};
+
 } // namespace vector
 
 } // namespace math

@@ -1,9 +1,11 @@
 #include <cavr/math/matrix.h>
+#include <cavr/math/vector.h>
 #include "gtest/gtest.h"
 
 #include "check_vector.h"
 using cavr::math::matrix::mat;
 using cavr::math::vector::vec;
+using cavr::math::autovec;
 
 TEST(matrix_construction, diagonal_construction) {
   mat<int, 3, 4> a(5);
@@ -51,109 +53,126 @@ TEST(matrix_construction, submatrix_construction) {
 TEST(matrix_assignment, matrix_assignment) {
   mat<float, 2, 3> a(0, 1, 2, 3, 4, 5);
   mat<int, 2, 3> b = a;
-  check_vector(b[0], 0, 1, 2);
-  check_vector(b[1], 3, 4, 5);
+  EXPECT_EQ(autovec(0, 1, 2), b[0]);
+  EXPECT_EQ(autovec(3, 4, 5), b[1]);
 }
 
 TEST(matrix_access, row_access) {
   vec<int, 3> a(0, 1, 2);
   vec<int, 4> b(3, 4, 5, 6);
   mat<int, 3, 3> m(a, b, 7, 8);
-  check_vector(m.row(0), 0, 3, 6);
-  check_vector(m.row(1), 1, 4, 7);
-  check_vector(m.row(2), 2, 5, 8);
+  EXPECT_EQ(autovec(0, 3, 6), m.row(0));
+  EXPECT_EQ(autovec(1, 4, 7), m.row(1));
+  EXPECT_EQ(autovec(2, 5, 8), m.row(2));
 }
 
 TEST(matrix_access, column_access) {
   vec<int, 3> a(0, 1, 2);
   vec<int, 4> b(3, 4, 5, 6);
   mat<int, 3, 3> m(a, b, 7, 8);
-  check_vector(m[0], 0, 1, 2);
-  check_vector(m[1], 3, 4, 5);
-  check_vector(m[2], 6, 7, 8);
+  EXPECT_EQ(autovec(0, 1, 2), m[0]);
+  EXPECT_EQ(autovec(3, 4, 5), m[1]);
+  EXPECT_EQ(autovec(6, 7, 8), m[2]);
 }
 
 TEST(matrix_transpose, matrix_transpose) {
   mat<int, 2, 4> m(0, 1, 2, 3, 4, 5, 6, 7);
-  check_vector(m[0], 0, 1, 2, 3);
-  check_vector(m[1], 4, 5, 6, 7);
+  EXPECT_EQ(autovec(0, 1, 2, 3), m[0]);
+  EXPECT_EQ(autovec(4, 5, 6, 7), m[1]);
   mat<int, 4, 2> t = m.transpose();
-  check_vector(t.row(0), 0, 1, 2, 3);
-  check_vector(t.row(1), 4, 5, 6, 7);
+  EXPECT_EQ(autovec(0, 1, 2, 3), t.row(0));
+  EXPECT_EQ(autovec(4, 5, 6, 7), t.row(1));
 }
 
 TEST(matrix_multiplication, matrix_multiplication) {
   mat<int, 2, 3> a(0, 1, 2, 3, 4, 5);
   mat<int, 4, 2> b(1, 2, 2, 0, 2, 0, 1, 3);
   mat<int, 4, 3> c = a * b;
-  check_vector(c.row(0), 6, 0, 0, 9);
-  check_vector(c.row(1), 9, 2, 2, 13);
-  check_vector(c.row(2), 12, 4, 4, 17);
+  EXPECT_EQ(autovec(6, 0, 0, 9), c.row(0));
+  EXPECT_EQ(autovec(9, 2, 2, 13), c.row(1));
+  EXPECT_EQ(autovec(12, 4, 4, 17), c.row(2));
+}
+
+TEST(matrix_multiplication, vector_multiplication) {
+  mat<int, 3, 2> a(0, 3, 1, 4, 2, 5);
+  vec<int, 3> b(1, 2, 3);
+  vec<int, 2> c = a * b;
+  EXPECT_EQ(autovec(8, 26), c);
 }
 
 TEST(matrix_multiplication, square_multiplication) {
   mat<int, 2, 2> a(0, 1, 2, 3);
   mat<int, 2, 2> b(4, 5, 6, 7);
   mat<int, 2, 2> c = a * b;
-  check_vector(c.row(0), 10, 14);
-  check_vector(c.row(1), 19, 27);
+  EXPECT_EQ(autovec(10, 14), c.row(0));
+  EXPECT_EQ(autovec(19, 27), c.row(1));
   c = a;
   c *= a;
-  check_vector(c.row(0), 2, 6);
-  check_vector(c.row(1), 3, 11);
+  EXPECT_EQ(autovec(2,  6), c.row(0));
+  EXPECT_EQ(autovec(3, 11), c.row(1));
   a *= a;
-  check_vector(a.row(0), 2, 6);
-  check_vector(a.row(1), 3, 11);
+  EXPECT_EQ(autovec(2,  6), a.row(0));
+  EXPECT_EQ(autovec(3, 11), a.row(1));
 }
 
 TEST(matrix_multiplication, scalar_multiplication) {
   mat<int, 2, 3> a(0, 1, 2, 3, 4, 5);
   mat<int, 2, 3> b = a * 2;
-  check_vector(b[0], 0, 2, 4);
-  check_vector(b[1], 6, 8, 10);
+  EXPECT_EQ(autovec(0, 2,  4), b[0]);
+  EXPECT_EQ(autovec(6, 8, 10), b[1]);
   mat<int, 2, 3> c = a;
   c *= 3;
-  check_vector(c[0], 0, 3, 6);
-  check_vector(c[1], 9, 12, 15);
+  EXPECT_EQ(autovec(0,  3,  6), c[0]);
+  EXPECT_EQ(autovec(9, 12, 15), c[1]);
   c = 2 * a;
-  check_vector(c[0], 0, 2, 4);
-  check_vector(c[1], 6, 8, 10);
+  EXPECT_EQ(autovec(0, 2,  4), c[0]);
+  EXPECT_EQ(autovec(6, 8, 10), c[1]);
 }
 
 TEST(matrix_division, scalar_division) {
   mat<int, 2, 3> a(0, 2, 4, 6, 8, 10);
   mat<int, 2, 3> b = a / 2;
-  check_vector(b[0], 0, 1, 2);
-  check_vector(b[1], 3, 4, 5);
-  check_vector(a[0], 0, 2, 4);
-  check_vector(a[1], 6, 8, 10);
+  EXPECT_EQ(autovec(0, 1,  2), b[0]);
+  EXPECT_EQ(autovec(3, 4,  5), b[1]);
+  EXPECT_EQ(autovec(0, 2,  4), a[0]);
+  EXPECT_EQ(autovec(6, 8, 10), a[1]);
   a /= 2;
-  check_vector(a[0], 0, 1, 2);
-  check_vector(a[1], 3, 4, 5);
+  EXPECT_EQ(autovec(0, 1, 2), a[0]);
+  EXPECT_EQ(autovec(3, 4, 5), a[1]);
 }
 
 TEST(homogeneous_matrix, translation) {
   mat<int, 4, 4> a = mat<int, 4, 4>::translate(4, 3, 2);
-  check_vector(a.row(0), 1, 0, 0, 4);
-  check_vector(a.row(1), 0, 1, 0, 3);
-  check_vector(a.row(2), 0, 0, 1, 2);
-  check_vector(a.row(3), 0, 0, 0, 1);
+  EXPECT_EQ(autovec(1, 0, 0, 4), a.row(0));
+  EXPECT_EQ(autovec(0, 1, 0, 3), a.row(1));
+  EXPECT_EQ(autovec(0, 0, 1, 2), a.row(2));
+  EXPECT_EQ(autovec(0, 0, 0, 1), a.row(3));
   mat<int, 4, 4> b = mat<int, 4, 4>::translate(vec<int, 3>(5, 6, 7));
-  check_vector(b.row(0), 1, 0, 0, 5);
-  check_vector(b.row(1), 0, 1, 0, 6);
-  check_vector(b.row(2), 0, 0, 1, 7);
-  check_vector(b.row(3), 0, 0, 0, 1);
+  EXPECT_EQ(autovec(1, 0, 0, 5), b.row(0));
+  EXPECT_EQ(autovec(0, 1, 0, 6), b.row(1));
+  EXPECT_EQ(autovec(0, 0, 1, 7), b.row(2));
+  EXPECT_EQ(autovec(0, 0, 0, 1), b.row(3));
 }
 
 TEST(homogeneous_matrix, rotation) {
   mat<int, 4, 4> a = mat<int, 4, 4>::rotate(M_PI / 2, 0, 0, 1);
-  check_vector(a.row(0), 0, -1, 0, 0);
-  check_vector(a.row(1), 1, 0, 0, 0);
-  check_vector(a.row(2), 0, 0, 1, 0);
-  check_vector(a.row(3), 0, 0, 0, 1);
+  EXPECT_EQ(autovec(0, -1,  0, 0), a.row(0));
+  EXPECT_EQ(autovec(1,  0,  0, 0), a.row(1));
+  EXPECT_EQ(autovec(0,  0,  1, 0), a.row(2));
+  EXPECT_EQ(autovec(0,  0,  0, 1), a.row(3));
   mat<int, 4, 4> b = mat<int, 4, 4>::rotate(M_PI / 2, vec<int, 3>(1, 0, 0));
-  check_vector(b.row(0), 1, 0, 0, 0);
-  check_vector(b.row(1), 0, 0, -1, 0);
-  check_vector(b.row(2), 0, 1, 0, 0);
-  check_vector(b.row(3), 0, 0, 0, 1);
+  EXPECT_EQ(autovec(1,  0,  0, 0), b.row(0));
+  EXPECT_EQ(autovec(0,  0, -1, 0), b.row(1));
+  EXPECT_EQ(autovec(0,  1,  0, 0), b.row(2));
+  EXPECT_EQ(autovec(0,  0,  0, 1), b.row(3));
+}
+
+TEST(homogeneous_matrix, look_at) {
+  mat<int, 4, 4> a = mat<int, 4, 4>::look_at(autovec(1,0,0),
+                                             autovec(0,0,0),
+                                             autovec(0,1,0));
+  EXPECT_EQ(autovec(0, 0, -1, 1), a * autovec(0, 0, 0, 1));
+  EXPECT_EQ(autovec(0, 0, -2, 1), a * autovec(-1, 0, 0, 1));
+  EXPECT_EQ(autovec(0, 0, 0, 1), a * autovec(1, 0, 0, 1));
+  EXPECT_EQ(autovec(1, 1, -1, 1), a * autovec(0, 1, -1, 1));
 }

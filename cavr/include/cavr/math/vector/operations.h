@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <iostream>
 #include <type_traits>
 
 #include <cavr/math/vector/traits.h>
@@ -32,6 +33,25 @@ struct operations {
       }
     }
     return *static_cast<T*>(this);
+  }
+
+  template<typename U,
+           typename =
+             typename std::enable_if<vector::dims<U>::value == N>::type>
+  bool operator==(const U& u) const {
+    const T& self = *static_cast<const T*>(this);
+    bool result = true;
+    for (int i = 0; i < N; ++i) {
+      result &= (self[i] == u[i]);
+    }
+    return result;
+  }
+
+  template<typename U,
+           typename =
+             typename std::enable_if<vector::dims<U>::value == N>::type>
+  bool operator!=(const U& u) const {
+    return !(*this == u);
   }
 
   template<typename U,
