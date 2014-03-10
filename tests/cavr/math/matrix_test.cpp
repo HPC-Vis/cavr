@@ -2,7 +2,6 @@
 #include <cavr/math/vector.h>
 #include "gtest/gtest.h"
 
-#include "check_vector.h"
 using cavr::math::matrix::mat;
 using cavr::math::vector::vec;
 using cavr::math::autovec;
@@ -175,4 +174,47 @@ TEST(homogeneous_matrix, look_at) {
   EXPECT_EQ(autovec(0, 0, -2, 1), a * autovec(-1, 0, 0, 1));
   EXPECT_EQ(autovec(0, 0, 0, 1), a * autovec(1, 0, 0, 1));
   EXPECT_EQ(autovec(1, 1, -1, 1), a * autovec(0, 1, -1, 1));
+}
+
+TEST(homogeneous_matrix, ortho) {
+  mat<float, 4, 4> a = mat<float, 4, 4>::ortho(-2, 0, -2, 2, 1, 5);
+  EXPECT_FLOAT_EQ(1.0, a[0][0]);
+  EXPECT_FLOAT_EQ(0.0, a[0][1]);
+  EXPECT_FLOAT_EQ(0.0, a[0][2]);
+  EXPECT_FLOAT_EQ(0.0, a[0][3]);
+  EXPECT_FLOAT_EQ(0.0, a[1][0]);
+  EXPECT_FLOAT_EQ(0.5, a[1][1]);
+  EXPECT_FLOAT_EQ(0.0, a[1][2]);
+  EXPECT_FLOAT_EQ(0.0, a[1][3]);
+  EXPECT_FLOAT_EQ(0.0, a[2][0]);
+  EXPECT_FLOAT_EQ(0.0, a[2][1]);
+  EXPECT_FLOAT_EQ(-0.5, a[2][2]);
+  EXPECT_FLOAT_EQ(0.0, a[2][3]);
+  EXPECT_FLOAT_EQ(1.0, a[3][0]);
+  EXPECT_FLOAT_EQ(0.0, a[3][1]);
+  EXPECT_FLOAT_EQ(-1.5, a[3][2]);
+  EXPECT_FLOAT_EQ(1.0, a[3][3]);
+}
+
+TEST(homogeneous_matrix, perspective) {
+  mat<float, 4, 4> a = mat<float, 4, 4>::perspective(M_PI / 2.0,
+                                                     0.5,
+                                                     1,
+                                                     5);
+  EXPECT_FLOAT_EQ(2.0, a[0][0]);
+  EXPECT_FLOAT_EQ(0.0, a[0][1]);
+  EXPECT_FLOAT_EQ(0.0, a[0][2]);
+  EXPECT_FLOAT_EQ(0.0, a[0][3]);
+  EXPECT_FLOAT_EQ(0.0, a[1][0]);
+  EXPECT_FLOAT_EQ(1.0, a[1][1]);
+  EXPECT_FLOAT_EQ(0.0, a[1][2]);
+  EXPECT_FLOAT_EQ(0.0, a[1][3]);
+  EXPECT_FLOAT_EQ(0.0, a[2][0]);
+  EXPECT_FLOAT_EQ(0.0, a[2][1]);
+  EXPECT_FLOAT_EQ(-1.5, a[2][2]);
+  EXPECT_FLOAT_EQ(-1.0, a[2][3]);
+  EXPECT_FLOAT_EQ(0.0, a[3][0]);
+  EXPECT_FLOAT_EQ(0.0, a[3][1]);
+  EXPECT_FLOAT_EQ(-2.5, a[3][2]);
+  EXPECT_FLOAT_EQ(0.0, a[3][3]);
 }

@@ -94,6 +94,38 @@ struct homogeneous_matrix<T, M, true> {
 
       return result;
     }
+
+    static inline M ortho(double left,
+                          double right,
+                          double bottom,
+                          double top,
+                          double near,
+                          double far) {
+      double dx = right - left;
+      double dy = top - bottom;
+      double dz = far - near;
+      double tx = -(right + left) / dx;
+      double ty = -(top + bottom) / dy;
+      double tz = -(far + near) / dz;
+      M result(2.0 / dx, 0, 0, 0, // col 0
+               0, 2.0 / dy, 0, 0, // col 1
+               0, 0, -2.0 / dz, 0, // col 2,
+               tx, ty, tz, 1); // col 3
+      return result;
+    }
+
+    static inline M perspective(double field_of_view_y_radians,
+                                double aspect_ratio,
+                                double near,
+                                double far) {
+      double f = 1.0 / std::tan(field_of_view_y_radians * 0.5);
+      double dz = near - far;
+      M result(f / aspect_ratio, 0, 0, 0, // col 0,
+               0, f, 0, 0, // col 1,
+               0, 0, (far + near) / dz, -1, // col 2,
+               0, 0, 2.0 * far * near / dz, 0); // col 3
+      return result;
+    }
 };
 
 template<typename T, int C, int R>
