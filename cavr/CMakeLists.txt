@@ -1,15 +1,33 @@
 PROJECT(cavr)
-
-FIND_PACKAGE(Protobuf REQUIRED)
-
-INCLUDE_DIRECTORIES("include" "${CMAKE_CURRENT_BINARY_DIR}")
-
 SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
+
+FIND_PACKAGE(Lua51 REQUIRED)
+FIND_PACKAGE(SWIG REQUIRED)
+
+INCLUDE_DIRECTORIES(
+    "include" 
+    "${CMAKE_CURRENT_BINARY_DIR}" 
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${LUA_INCLUDE_DIR}"
+)
+INCLUDE(${SWIG_USE_FILE})
+FIND_PACKAGE(Protobuf REQUIRED)
+SET(CMAKE_SWIG_FLAGS "")
+SET_SOURCE_FILES_PROPERTIES("cavr_config.i" PROPERTIES CPLUSPLUS ON)
+SET_SOURCE_FILES_PROPERTIES("cavr_config.i" PROPERTIES SWIG_FLAGS "-includeall")
+SET(SWIG_MODULE_cavr_config_EXTRA_DEPS
+    "include/cavr/math/matrix.h"
+)
+SWIG_ADD_MODULE(cavr_config lua "cavr_config.i")
+SET(cavr_config_INCLUDE_DIRS ${LUA_INCLUDE_DIR})
+TARGET_LINK_LIBRARIES(cavr_config ${LUA_LIBRARIES})
+
 
 SET(cavr_sources
     "source/math/matrix.cpp"
     "source/math/vector.cpp"
+    "source/config/config.cpp"
 )
 
 ADD_LIBRARY(cavr SHARED ${cavr_sources})
