@@ -17,7 +17,7 @@ SET(CMAKE_SWIG_FLAGS "")
 SET_SOURCE_FILES_PROPERTIES("cavr_config.i" PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES("cavr_config.i" PROPERTIES SWIG_FLAGS "-includeall")
 SET(SWIG_MODULE_cavr_config_EXTRA_DEPS
-    "include/cavr/math/matrix.h"
+    "include/cavr/config/config.h"
 )
 SWIG_ADD_MODULE(cavr_config lua "cavr_config.i")
 SET(cavr_config_INCLUDE_DIRS ${LUA_INCLUDE_DIR})

@@ -3,6 +3,7 @@ INCLUDE_DIRECTORIES(
     ${cavr_SOURCE_DIR}/include
 )
 SET(test_sources
+    "cavr/config/config_test.cpp"
     "cavr/math/vector_test.cpp"
     "cavr/math/matrix_test.cpp"
 )
