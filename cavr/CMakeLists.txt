@@ -28,6 +28,8 @@ SET(cavr_sources
     "source/math/matrix.cpp"
     "source/math/vector.cpp"
     "source/config/config.cpp"
+    "source/config/configuration_specification.cpp"
+    "source/config/parameter_specification.cpp"
 )
 
 ADD_LIBRARY(cavr SHARED ${cavr_sources})
