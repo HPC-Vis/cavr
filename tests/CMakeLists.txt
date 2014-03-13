@@ -4,6 +4,8 @@ INCLUDE_DIRECTORIES(
 )
 SET(test_sources
     "cavr/config/config_test.cpp"
+    "cavr/config/configuration_specification_test.cpp"
+    "cavr/config/parameter_specification_test.cpp"
     "cavr/math/vector_test.cpp"
     "cavr/math/matrix_test.cpp"
 )

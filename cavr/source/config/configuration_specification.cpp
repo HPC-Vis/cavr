@@ -1,4 +1,5 @@
 #include <cavr/config/configuration_specification.h>
+#include <glog/logging.h>
 
 namespace cavr {
 
@@ -8,6 +9,8 @@ bool ConfigurationSpecification::
 addParameter(const ParameterSpecification& parameter) {
   const std::string& name = parameter.name();
   if (parameters_.count(name) > 0) {
+    LOG(WARNING) << "Parameter " << name << " is already contained in this"
+      " ConfigurationSpecification.";
     return false;
   }
   parameters_.insert({name, parameter});

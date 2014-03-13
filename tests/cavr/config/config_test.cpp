@@ -1,6 +1,6 @@
-#include<cavr/config/config.h>
-#include<cavr/math/matrix.h>
-#include<cavr/math/vector.h>
+#include <cavr/config/config.h>
+#include <cavr/math/matrix.h>
+#include <cavr/math/vector.h>
 #include "gtest/gtest.h"
 
 using cavr::config::transform;
