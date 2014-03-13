@@ -15,6 +15,7 @@ public:
   static LuaReader* createFromFile(const std::string& path);
   template<typename T>
   bool get(const std::string& path, T& value);
+  bool getKeys(const std::string& path, std::vector<std::string>& keys);
   ~LuaReader();
 private:
   LuaReader();
@@ -22,6 +23,12 @@ private:
   template<typename T>
   bool getValue_(T& value);
   bool getValue_(std::string& value);
+  bool splitTableFromVariable_(const std::string& path,
+                               std::string& table_name,
+                               std::string& var_name);
+  bool enterTable_(const std::string& path);
+  bool leaveTable_();
+
   lua_State* L_;
 };
 

@@ -10,6 +10,11 @@ LuaReader::LuaReader() {
   luaL_openlibs(L_);
 }
 
+bool LuaReader::getKeys(const std::string& path,
+                        std::vector<std::string>& keys) {
+  return true;
+}
+
 LuaReader::~LuaReader() {
   lua_close(L_);
 }
@@ -34,6 +39,20 @@ bool LuaReader::getValue_(std::string& value) {
     return false;
   }
   value = std::string(lua_tostring(L_, -1));
+  return true;
+}
+
+bool LuaReader::splitTableFromVariable_(const std::string& path,
+                                        std::string& table_name,
+                                        std::string& var_name) {
+  size_t split_point = path.rfind(".");
+  if (std::string::npos == split_point) {
+    table_name = "";
+    var_name = path;
+    return true;
+  }
+  table_name = path.substr(0, split_point);
+  var_name = path.substr(split_point + 1);
   return true;
 }
 
