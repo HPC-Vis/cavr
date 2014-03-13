@@ -31,11 +31,17 @@ SET(cavr_sources
     "source/math/vector.cpp"
     "source/config/config.cpp"
     "source/config/configuration_specification.cpp"
+    "source/config/lua_reader.cpp"
+    "source/config/lua_specification_reader.cpp"
     "source/config/parameter_specification.cpp"
+    "source/util/file.cpp"
 )
 
 ADD_LIBRARY(cavr SHARED ${cavr_sources})
-TARGET_LINK_LIBRARIES(cavr ${PROTOBUF_LIBRARIES} ${GLOG_LIBRARIES})
+TARGET_LINK_LIBRARIES(cavr
+                      ${PROTOBUF_LIBRARIES}
+                      ${GLOG_LIBRARIES}
+                      ${LUA_LIBRARIES})
 SET_TARGET_PROPERTIES(cavr PROPERTIES LINKER_LANGUAGE CXX)
 
 INSTALL(DIRECTORY include/cavr
