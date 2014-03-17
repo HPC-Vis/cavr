@@ -28,12 +28,16 @@ TEST(string, split) {
 }
 
 TEST(string, rsplit) {
-#if 0
   std::string abcdef = "a.b.c.d.e.f";
   std::string f = "z";
   std::string abcde = "y";
   EXPECT_EQ(1, String::rsplit(abcdef, ".", abcde, f));
   EXPECT_EQ("a.b.c.d.e", abcde);
   EXPECT_EQ("f", f);
-#endif
+  std::string e = "x";
+  std::string abcd = "w";
+  EXPECT_EQ(2, String::rsplit(abcdef, ".", abcd, e, f));
+  EXPECT_EQ("a.b.c.d", abcd);
+  EXPECT_EQ("e", e);
+  EXPECT_EQ("f", f);
 }
