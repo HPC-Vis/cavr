@@ -13,6 +13,7 @@ SET(test_sources
     "cavr/config/parameter_specification_test.cpp"
     "cavr/math/vector_test.cpp"
     "cavr/math/matrix_test.cpp"
+    "cavr/util/lua_state_test.cpp"
     "cavr/util/string_test.cpp"
 )
 

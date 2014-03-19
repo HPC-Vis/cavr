@@ -35,6 +35,7 @@ SET(cavr_sources
     "source/config/lua_specification_reader.cpp"
     "source/config/parameter_specification.cpp"
     "source/util/file.cpp"
+    "source/util/lua_state.cpp"
 )
 
 ADD_LIBRARY(cavr SHARED ${cavr_sources})
