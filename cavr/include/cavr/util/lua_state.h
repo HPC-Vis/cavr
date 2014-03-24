@@ -18,6 +18,7 @@ public:
   bool popTable(const std::string& name);
   bool pushValue(const std::string& key);
   bool popValue(const std::string& key);
+  void reset();
   template<typename T,
            typename =
              typename std::enable_if<std::is_arithmetic<T>::value>::type>

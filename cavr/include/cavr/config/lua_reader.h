@@ -5,6 +5,9 @@
 #include <lualib.h>
 #include <string>
 
+#include <cavr/util/lua_state.h>
+#include <cavr/util/string.h>
+
 namespace cavr {
 
 namespace config {
@@ -19,67 +22,32 @@ public:
   ~LuaReader();
 private:
   LuaReader();
-  bool loadBuffer_(const std::string& buffer);
-  template<typename T>
-  bool getValue_(T& value);
-  bool getValue_(std::string& value);
-  bool splitTableFromVariable_(const std::string& path,
-                               std::string& table_name,
-                               std::string& var_name);
-  bool enterTable_(const std::string& path);
-  bool leaveTable_();
-
-  lua_State* L_;
+  util::LuaState lua_state_;
 };
 
 template<typename T>
 bool LuaReader::get(const std::string& path, T& value) {
-  size_t begin_pos = 0;
-  size_t end_pos = path.find(".");
-  int lua_depth = 0;
-  while(end_pos != std::string::npos) {
-    std::string table_name = path.substr(begin_pos, end_pos - begin_pos);
-    if (0 == lua_depth) {
-      lua_getglobal(L_, table_name.c_str());
-      ++lua_depth;
-    } else { // we're in a table already that's currently at -1
-      lua_pushstring(L_, table_name.c_str());
-      ++lua_depth;
-      lua_gettable(L_, -2);
-    }
-    if (!lua_istable(L_, -1)) {
-      LOG(ERROR) << table_name << " is not a table in path " <<
-        path.substr(0, begin_pos);
-      lua_pop(L_, lua_depth);
-      return false;
-    }
-    begin_pos = end_pos + 1;
-    end_pos = path.find(".", begin_pos);
-  }
-  std::string key = path.substr(begin_pos);
-  if (0 == lua_depth) {
-    lua_getglobal(L_, key.c_str());
-  } else {
-    lua_pushstring(L_, key.c_str());
-    lua_gettable(L_, -2);
-  }
-  ++lua_depth;
-  bool result = getValue_(value);
-  lua_pop(L_, lua_depth);
-  if (!result) {
-    LOG(ERROR) << "failed to find value " << path;
-  }
-  return result;
-}
-
-template<typename T>
-bool LuaReader::getValue_(T& value) {
-  if (!lua_isnumber(L_, -1)) {
-    LOG(ERROR) << "var is not a number.";
+  std::vector<std::string> path_parts;
+  util::String::split(path, ".", path_parts);
+  if (path_parts.empty()) {
+    LOG(ERROR) << "Empty path.";
     return false;
   }
-  value = (T)lua_tonumber(L_, -1);
-  return true;
+  std::string var_name = path_parts.back();
+  path_parts.pop_back();
+  for (const auto& part : path_parts) {
+    if (!lua_state_.pushTable(part)) {
+      LOG(ERROR) << "Invalid path: " << path;
+      lua_state_.reset();
+      return false;
+    }
+  }
+  bool result = lua_state_.getValue(var_name, value);
+  lua_state_.reset();
+  if (!result) {
+    LOG(ERROR) << "Invalid variable: " << path;
+  }
+  return result;
 }
 
 } // namespace config

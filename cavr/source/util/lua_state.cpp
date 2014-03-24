@@ -61,6 +61,11 @@ bool LuaState::popTable(const std::string& name) {
   return true;
 }
 
+void LuaState::reset() {
+  lua_pop(L_, stack_depth_);
+  stack_depth_ = 0;
+}
+
 bool LuaState::readValue(std::string& value) {
   if (!lua_isstring(L_, -1)) {
     LOG(ERROR) << "value is not a string.";

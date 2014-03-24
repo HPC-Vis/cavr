@@ -56,5 +56,12 @@ TEST(lua_state, lua_state) {
   EXPECT_TRUE(ls.getValue("f", f));
   EXPECT_FALSE(f);
   EXPECT_TRUE(t);
+  EXPECT_EQ(2, ls.getStackDepth());
+  ls.reset();
+  EXPECT_EQ(0, ls.getStackDepth());
+  EXPECT_TRUE(ls.pushTable("a"));
+  doge = "doge";
+  EXPECT_TRUE(ls.getValue("doge", doge));
+  EXPECT_EQ("wow", doge);
 }
 
