@@ -26,7 +26,7 @@ const char* bad_file =
 
 TEST(lua_state, lua_state) {
   LuaState ls;
-  EXPECT_TRUE(ls.loadBuffer(lua_file));
+  ASSERT_TRUE(ls.loadBuffer(lua_file));
   EXPECT_EQ(0, ls.getStackDepth());
   EXPECT_FALSE(ls.pushTable("b"));
   EXPECT_EQ(0, ls.getStackDepth());
@@ -63,5 +63,16 @@ TEST(lua_state, lua_state) {
   doge = "doge";
   EXPECT_TRUE(ls.getValue("doge", doge));
   EXPECT_EQ("wow", doge);
+  ls.reset();
+  std::vector<std::string> keys;
+  EXPECT_TRUE(ls.pushTable("a"));
+  EXPECT_TRUE(ls.readKeys(keys));
+  EXPECT_EQ(3, keys.size());
+  std::set<std::string> unique_keys(keys.begin(), keys.end());
+  EXPECT_EQ(3, unique_keys.size());
+  EXPECT_EQ(1, unique_keys.count("doge"));
+  EXPECT_EQ(1, unique_keys.count("b"));
+  EXPECT_EQ(1, unique_keys.count("c"));
+  EXPECT_EQ(0, unique_keys.count("t"));
 }
 

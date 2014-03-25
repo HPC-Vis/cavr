@@ -32,7 +32,6 @@ SET(cavr_sources
     "source/config/config.cpp"
     "source/config/configuration_specification.cpp"
     "source/config/lua_reader.cpp"
-    "source/config/lua_specification_reader.cpp"
     "source/config/parameter_specification.cpp"
     "source/util/file.cpp"
     "source/util/lua_state.cpp"

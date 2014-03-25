@@ -25,6 +25,7 @@ public:
   bool readValue(T& value);
   bool readValue(std::string& value);
   bool readValue(bool& value);
+  bool readKeys(std::vector<std::string>& keys);
   template<typename T> 
   bool getValue(const std::string& key, T& value);
   lua_State* getState();

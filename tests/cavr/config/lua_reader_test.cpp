@@ -17,4 +17,3 @@ TEST(lua_reader, get) {
   EXPECT_TRUE(reader->get("a.b.d", y));
   EXPECT_EQ("cat", y);
 }
-

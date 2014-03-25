@@ -87,6 +87,15 @@ bool LuaState::readValue(bool& value) {
   return true;
 }
 
+bool LuaState::readKeys(std::vector<std::string>& keys) {
+  lua_pushnil(L_);
+  while (lua_next(L_, -2)) {
+    keys.push_back(std::string(lua_tostring(L_, -2)));
+    lua_pop(L_, 1);
+  }
+  return true;
+}
+
 lua_State* LuaState::getState() {
   return L_;
 }
