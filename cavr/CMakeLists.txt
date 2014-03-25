@@ -27,6 +27,7 @@ TARGET_LINK_LIBRARIES(cavr_config ${LUA_LIBRARIES})
 
 
 SET(cavr_sources
+    "source/input/analog.cpp"
     "source/input/input.cpp"
     "source/input/switch.cpp"
     "source/math/matrix.cpp"

@@ -11,6 +11,7 @@ SET(test_sources
     "cavr/config/configuration_specification_test.cpp"
     "cavr/config/lua_reader_test.cpp"
     "cavr/config/parameter_specification_test.cpp"
+    "cavr/input/analog_test.cpp"
     "cavr/input/input_test.cpp"
     "cavr/input/switch_test.cpp"
     "cavr/math/vector_test.cpp"
