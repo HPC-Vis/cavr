@@ -19,6 +19,7 @@ SET(test_sources
     "cavr/math/matrix_test.cpp"
     "cavr/util/lua_state_test.cpp"
     "cavr/util/string_test.cpp"
+    "etc/cavr/schema/schema_test.cpp"
 )
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")

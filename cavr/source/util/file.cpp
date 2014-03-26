@@ -2,6 +2,7 @@
 #include <glog/logging.h>
 
 #include <cavr/util/file.h>
+#include <cavr/util/string.h>
 
 namespace cavr {
 
@@ -22,6 +23,24 @@ bool File::loadIntoString(const std::string& path, std::string& buffer) {
                 std::istreambuf_iterator<char>());
   file.close();
   return true;
+}
+
+bool File::find(const std::string& name,
+                const std::vector<std::string>& search_paths,
+                std::string& result_path) {
+  for (const auto& path : search_paths) {
+    std::string p = path + "/" + name;
+    if (exists(p)) {
+      result_path = p;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool File::exists(const std::string& path) {
+  std::filebuf file;
+  return nullptr != file.open(path, std::ios::in);
 }
 
 } // namespace util
