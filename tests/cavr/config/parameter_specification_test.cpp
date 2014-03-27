@@ -3,14 +3,15 @@
 
 using cavr::config::ParameterSpecification;
 using cavr::config::ParameterType;
+using cavr::config::Parameter;
 
 TEST(parameter_specification, parameter_specification) {
-  ParameterSpecification ps(ParameterType::kNumber, "test", false);
+  Parameter<double> ps("test", false);
   EXPECT_EQ(ps.type(), ParameterType::kNumber);
   EXPECT_EQ(ps.name(), "test");
   EXPECT_FALSE(ps.required());
-  ParameterSpecification qs = ps;
-  EXPECT_EQ(qs.type(), ParameterType::kNumber);
-  EXPECT_EQ(qs.name(), "test");
-  EXPECT_FALSE(qs.required());
+  ParameterSpecification* qs = ps.copy();
+  EXPECT_EQ(qs->type(), ParameterType::kNumber);
+  EXPECT_EQ(qs->name(), "test");
+  EXPECT_FALSE(qs->required());
 }

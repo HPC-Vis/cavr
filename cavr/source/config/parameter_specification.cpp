@@ -1,4 +1,5 @@
 #include <cavr/config/parameter_specification.h>
+#include <glog/logging.h>
 
 namespace cavr {
 
@@ -12,13 +13,6 @@ ParameterSpecification::ParameterSpecification(ParameterType type,
     required_(is_required) {
 }
 
-ParameterSpecification::
-ParameterSpecification(const ParameterSpecification& specification) {
-  type_ = specification.type();
-  name_ = specification.name();
-  required_ = specification.required();
-}
-
 ParameterType ParameterSpecification::type() const {
   return type_;
 }
@@ -29,6 +23,36 @@ const std::string& ParameterSpecification::name() const {
 
 bool ParameterSpecification::required() const {
   return required_;
+}
+
+bool ParameterSpecification::setDefault(const double& number) {
+  LOG(WARNING) << name_ << " is not a number.";
+  return false;
+}
+
+bool ParameterSpecification::setDefault(const std::string& string) {
+  LOG(WARNING) << name_ << " is not a string.";
+  return false;
+}
+
+bool ParameterSpecification::setDefault(const transform& t) {
+  LOG(WARNING) << name_ << " is not a tranform.";
+  return false;
+}
+
+bool ParameterSpecification::getDefault(double& value) const {
+  LOG(WARNING) << name_ << " is not a number.";
+  return false;
+}
+
+bool ParameterSpecification::getDefault(std::string& value) const {
+  LOG(WARNING) << name_ << " is not a string.";
+  return false;
+}
+
+bool ParameterSpecification::getDefault(transform& value) const {
+  LOG(WARNING) << name_ << " is not a number.";
+  return false;
 }
 
 } // namespace config

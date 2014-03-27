@@ -1,23 +1,25 @@
 #include <cavr/config/configuration_specification.h>
+#include <cavr/config/config.h>
 #include "gtest/gtest.h"
 
 using cavr::config::ConfigurationSpecification;
 using cavr::config::ParameterSpecification;
+using cavr::config::Parameter;
 using cavr::config::ParameterType;
 
 TEST(configuration_specification, configuration_specification) {
   ConfigurationSpecification cs;
-  ParameterSpecification ps(ParameterType::kTransform, "foo", false);
-  EXPECT_TRUE(cs.addParameter(ps));
-  EXPECT_FALSE(cs.addParameter(ps));
-  ParameterSpecification qs(ParameterType::kNumber, "foo", true);
-  EXPECT_FALSE(cs.addParameter(qs));
+  Parameter<cavr::config::transform> p("foo", false);
+  EXPECT_TRUE(cs.addParameter(&p));
+  EXPECT_FALSE(cs.addParameter(&p));
+  Parameter<double> q("foo", true);
+  EXPECT_FALSE(cs.addParameter(&q));
   const auto& parameters = cs.getMap();
   EXPECT_EQ(1, parameters.size());
   EXPECT_EQ(1, parameters.count("foo"));
-  EXPECT_EQ(ParameterType::kTransform, parameters.find("foo")->second.type());
-  EXPECT_EQ("foo", parameters.find("foo")->second.name());
-  EXPECT_FALSE(parameters.find("foo")->second.required());
+  EXPECT_EQ(ParameterType::kTransform, parameters.find("foo")->second->type());
+  EXPECT_EQ("foo", parameters.find("foo")->second->name());
+  EXPECT_FALSE(parameters.find("foo")->second->required());
 }
 
 TEST(configuration_specification, from_buffer) {
@@ -36,18 +38,18 @@ TEST(configuration_specification, from_buffer) {
   EXPECT_EQ(1, parameter_map.count("b"));
   EXPECT_EQ(1, parameter_map.count("c"));
   EXPECT_EQ(0, parameter_map.count("test"));
-  ParameterSpecification a = parameter_map.find("a")->second;
-  ParameterSpecification b = parameter_map.find("b")->second;
-  ParameterSpecification c = parameter_map.find("c")->second;
-  EXPECT_EQ(cavr::config::kNumber, a.type());
-  EXPECT_FALSE(a.required());
-  EXPECT_EQ("a", a.name());
-  EXPECT_EQ(cavr::config::kString, b.type());
-  EXPECT_TRUE(b.required());
-  EXPECT_EQ("b", b.name());
-  EXPECT_EQ(cavr::config::kTransform, c.type());
-  EXPECT_FALSE(c.required());
-  EXPECT_EQ("c", c.name());
+  ParameterSpecification* a = parameter_map.find("a")->second;
+  ParameterSpecification* b = parameter_map.find("b")->second;
+  ParameterSpecification* c = parameter_map.find("c")->second;
+  EXPECT_EQ(cavr::config::kNumber, a->type());
+  EXPECT_FALSE(a->required());
+  EXPECT_EQ("a", a->name());
+  EXPECT_EQ(cavr::config::kString, b->type());
+  EXPECT_TRUE(b->required());
+  EXPECT_EQ("b", b->name());
+  EXPECT_EQ(cavr::config::kTransform, c->type());
+  EXPECT_FALSE(c->required());
+  EXPECT_EQ("c", c->name());
 }
 
 TEST(configuration_specification, bad_buffer) {
