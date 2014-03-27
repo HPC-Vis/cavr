@@ -16,16 +16,16 @@ INCLUDE_DIRECTORIES(
 INCLUDE(${SWIG_USE_FILE})
 FIND_PACKAGE(Protobuf REQUIRED)
 SET(CMAKE_SWIG_FLAGS "")
-SET_SOURCE_FILES_PROPERTIES("cavr_config.i" PROPERTIES CPLUSPLUS ON)
-SET_SOURCE_FILES_PROPERTIES("cavr_config.i"
-                            PROPERTIES 
-                            SWIG_FLAGS "-includeall")
-SET(SWIG_MODULE_cavr_config_EXTRA_DEPS
-    "include/cavr/config/config.h"
-)
-SWIG_ADD_MODULE(cavr_config lua "cavr_config.i")
-SET(cavr_config_INCLUDE_DIRS ${LUA_INCLUDE_DIR})
-TARGET_LINK_LIBRARIES(cavr_config ${LUA_LIBRARIES})
+SET(CAVR_CONFIG_LUA "${CMAKE_CURRENT_BINARY_DIR}/cavr_config_lua.cpp")
+ADD_CUSTOM_COMMAND(OUTPUT "${CAVR_CONFIG_LUA}"
+                   COMMAND ${SWIG_EXECUTABLE}
+                   ARGS "-lua" "-includeall" "-c++"
+                   "-o" "${CAVR_CONFIG_LUA}"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/cavr_config.i"
+                   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cavr_config.i"
+                   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+SET_SOURCE_FILES_PROPERTIES("${CAVR_CONFIG_LUA}" GENERATED)
+ADD_CUSTOM_TARGET(cavr_config_lua_cpp DEPENDS "${CAVR_CONFIG_LUA}")
 
 FILE(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/cavr")
 FILE(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/cavr/util")
@@ -36,10 +36,8 @@ ADD_CUSTOM_COMMAND(OUTPUT "${SWIG_LUART}"
                    ARGS "-lua" "-external-runtime" "${SWIG_LUART}"
                    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
                    VERBATIM)
-SET_SOURCE_FILES_PROPERTIES("${SWIG_LUART}"
-                            GENERATED)
-ADD_CUSTOM_TARGET(swigluart_header
-                  DEPENDS "${SWIG_LUART}")
+SET_SOURCE_FILES_PROPERTIES("${SWIG_LUART}" GENERATED)
+ADD_CUSTOM_TARGET(swigluart_header DEPENDS "${SWIG_LUART}")
 
 SET(cavr_sources
     "source/input/analog.cpp"
@@ -57,8 +55,8 @@ SET(cavr_sources
     "source/util/paths.cpp"
 )
 
-ADD_LIBRARY(cavr SHARED ${cavr_sources})
-ADD_DEPENDENCIES(cavr swigluart_header)
+ADD_LIBRARY(cavr SHARED ${cavr_sources} ${CAVR_CONFIG_LUA})
+ADD_DEPENDENCIES(cavr swigluart_header cavr_config_lua_cpp)
 TARGET_LINK_LIBRARIES(cavr
                       ${PROTOBUF_LIBRARIES}
                       ${GLOG_LIBRARIES}

@@ -1,6 +1,8 @@
 #include <cavr/util/lua_state.h>
 #include <cavr/util/swigluart.h>
 
+extern "C" int luaopen_cavr(lua_State* L);
+
 namespace cavr {
 
 namespace util {
@@ -8,6 +10,11 @@ namespace util {
 LuaState::LuaState() {
   L_ = lua_open();
   luaL_openlibs(L_);
+  luaopen_cavr(L_);
+  transform_type_info_ = SWIG_TypeQuery(L_, "cavr::config::transform *");
+  if (nullptr == transform_type_info_) {
+    LOG(ERROR) << "Could not find swig type for transform.";
+  }
   stack_depth_ = 0;
 }
 
@@ -89,6 +96,11 @@ bool LuaState::readValue(bool& value) {
 }
 
 bool LuaState::readValue(config::transform& value) {
+  config::transform* t = nullptr;
+  if (SWIG_IsOK(SWIG_ConvertPtr(L_, -1, (void**)&t, transform_type_info_, 0))) {
+    value = *t;
+    return true;
+  }
   return false;
 }
 

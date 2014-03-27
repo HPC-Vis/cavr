@@ -44,6 +44,11 @@ public:
     return true;
   }
 
+  virtual bool getDefault(T& value) const {
+    value = default_value_;
+    return true;
+  }
+
   virtual ParameterSpecification* copy() const {
     Parameter<T>* result = new Parameter<T>(name(), required());
     result->setDefault(default_value_);

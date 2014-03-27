@@ -7,6 +7,8 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+struct swig_type_info;
+
 namespace cavr {
 
 namespace util {
@@ -36,6 +38,7 @@ public:
 private:
   lua_State* L_;
   int stack_depth_;
+  struct swig_type_info* transform_type_info_;
 };
 
 template<typename T, typename>
