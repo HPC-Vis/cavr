@@ -1,4 +1,5 @@
 #include <cavr/util/lua_state.h>
+#include <cavr/util/swigluart.h>
 
 namespace cavr {
 
@@ -85,6 +86,10 @@ bool LuaState::readValue(bool& value) {
     return false;
   }
   return true;
+}
+
+bool LuaState::readValue(config::transform& value) {
+  return false;
 }
 
 bool LuaState::readKeys(std::vector<std::string>& keys) {

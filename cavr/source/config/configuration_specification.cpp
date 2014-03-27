@@ -1,6 +1,7 @@
 #include <cavr/config/configuration_specification.h>
 #include <cavr/config/lua_reader.h>
 #include <glog/logging.h>
+#include <memory>
 
 namespace cavr {
 
@@ -56,6 +57,19 @@ ConfigurationSpecification::createFromLuaBuffer(const std::string& buffer,
   return spec;
 }
 
+template<typename T>
+bool setDefault(LuaReader* reader,
+                const std::string& prefix,
+                ParameterSpecification* parameter) {
+  T default_value;
+  if (!reader->get(prefix + ".default", default_value)) {
+    LOG(ERROR) << "default must be specified for " << prefix;
+    return false;
+  }
+  parameter->setDefault(default_value);
+  return true;
+}
+
 ConfigurationSpecification*
 ConfigurationSpecification::createFromLuaReader(LuaReader* reader,
                                                 const std::string& name) {
@@ -67,37 +81,40 @@ ConfigurationSpecification::createFromLuaReader(LuaReader* reader,
   bool result = true;
   ConfigurationSpecification* specification = new ConfigurationSpecification();
   for (const auto& parameter_name : parameter_names) {
+    std::string prefix = name + "." + parameter_name;
     bool is_required = false;
-    if (!reader->get(name + "." + parameter_name + ".required", is_required)) {
+    if (!reader->get(prefix + ".required", is_required)) {
       LOG(ERROR) << "required must be specified for " << parameter_name;
       result = false;
       continue;
     }
-
     std::string type_name;
-    if (!reader->get(name + "." + parameter_name + ".type", type_name)) {
+    if (!reader->get(prefix + ".type", type_name)) {
       LOG(ERROR) << "type must be specified for " << parameter_name;
       result = false;
       continue;
     }
-    
-    ParameterSpecification* parameter = nullptr;
+    std::unique_ptr<ParameterSpecification> parameter = nullptr;
     ParameterType parameter_type;
     if ("number" == type_name) {
-      parameter = new Parameter<double>(parameter_name, is_required);
+      parameter.reset(new Parameter<double>(parameter_name, is_required));
+      result &= 
+        is_required || setDefault<double>(reader, prefix, parameter.get());
     } else if ("string" == type_name) {
-      parameter = new Parameter<std::string>(parameter_name, is_required);
+      parameter.reset(new Parameter<std::string>(parameter_name, is_required));
+      result &= 
+        is_required || setDefault<std::string>(reader, prefix, parameter.get());
     } else if ("transform" == type_name) {
-      parameter = new Parameter<transform>(parameter_name, is_required);
+      parameter.reset(new Parameter<transform>(parameter_name, is_required));
+      result &= 
+        is_required || setDefault<transform>(reader, prefix, parameter.get());
     } else {
       LOG(ERROR) << "parameter type unknown for " << parameter_name;
       result = false;
-      continue;
     }
-    if (!specification->addParameter(parameter)) {
+    if (parameter && !specification->addParameter(parameter.get())) {
       LOG(ERROR) << "Failed to add parameter " << parameter_name;
       result = false;
-      continue;
     }
   }
   if (!result) {

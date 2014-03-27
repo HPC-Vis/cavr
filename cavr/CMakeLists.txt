@@ -17,7 +17,9 @@ INCLUDE(${SWIG_USE_FILE})
 FIND_PACKAGE(Protobuf REQUIRED)
 SET(CMAKE_SWIG_FLAGS "")
 SET_SOURCE_FILES_PROPERTIES("cavr_config.i" PROPERTIES CPLUSPLUS ON)
-SET_SOURCE_FILES_PROPERTIES("cavr_config.i" PROPERTIES SWIG_FLAGS "-includeall")
+SET_SOURCE_FILES_PROPERTIES("cavr_config.i"
+                            PROPERTIES 
+                            SWIG_FLAGS "-includeall")
 SET(SWIG_MODULE_cavr_config_EXTRA_DEPS
     "include/cavr/config/config.h"
 )
@@ -25,6 +27,19 @@ SWIG_ADD_MODULE(cavr_config lua "cavr_config.i")
 SET(cavr_config_INCLUDE_DIRS ${LUA_INCLUDE_DIR})
 TARGET_LINK_LIBRARIES(cavr_config ${LUA_LIBRARIES})
 
+FILE(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/cavr")
+FILE(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/cavr/util")
+SET(SWIG_LUART "${CMAKE_CURRENT_BINARY_DIR}/cavr/util/swigluart.h")
+
+ADD_CUSTOM_COMMAND(OUTPUT "${SWIG_LUART}"
+                   COMMAND ${SWIG_EXECUTABLE}
+                   ARGS "-lua" "-external-runtime" "${SWIG_LUART}"
+                   WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+                   VERBATIM)
+SET_SOURCE_FILES_PROPERTIES("${SWIG_LUART}"
+                            GENERATED)
+ADD_CUSTOM_TARGET(swigluart_header
+                  DEPENDS "${SWIG_LUART}")
 
 SET(cavr_sources
     "source/input/analog.cpp"
@@ -43,6 +58,7 @@ SET(cavr_sources
 )
 
 ADD_LIBRARY(cavr SHARED ${cavr_sources})
+ADD_DEPENDENCIES(cavr swigluart_header)
 TARGET_LINK_LIBRARIES(cavr
                       ${PROTOBUF_LIBRARIES}
                       ${GLOG_LIBRARIES}

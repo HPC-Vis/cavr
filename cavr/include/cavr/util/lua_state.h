@@ -1,4 +1,5 @@
 #pragma once
+#include <cavr/config/config.h>
 #include <type_traits>
 
 #include <glog/logging.h>
@@ -25,6 +26,7 @@ public:
   bool readValue(T& value);
   bool readValue(std::string& value);
   bool readValue(bool& value);
+  bool readValue(config::transform& value);
   bool readKeys(std::vector<std::string>& keys);
   template<typename T> 
   bool getValue(const std::string& key, T& value);
