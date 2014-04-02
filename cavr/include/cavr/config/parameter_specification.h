@@ -2,11 +2,15 @@
 #include <cavr/config/config.h>
 #include <cavr/config/parameter_types.h>
 
+#include <map>
 #include <string>
+#include <vector>
 
 namespace cavr {
 
 namespace config {
+
+class ConfigurationSpecification;
 
 class ParameterSpecification {
 public:
@@ -16,15 +20,19 @@ public:
   ParameterType type() const;
   const std::string& name() const;
   bool required() const;
-  bool setDefaultNumber(double number);
-  bool setDefaultString(const std::string& string);
-  bool setDefaultTransform(const transform& t);
+
+  virtual bool setDefault(const bool& value);
   virtual bool setDefault(const double& value);
   virtual bool setDefault(const std::string& value);
   virtual bool setDefault(const transform& value);
+  virtual bool setDefault(const std::vector<std::string>& value);
+
+  virtual bool getDefault(bool& value) const;
   virtual bool getDefault(double& value) const;
   virtual bool getDefault(std::string& value) const;
   virtual bool getDefault(transform& value) const;
+  virtual bool getDefault(std::vector<std::string>& value) const;
+
   virtual ParameterSpecification* copy() const = 0;
 private:
   ParameterType type_;
@@ -56,6 +64,36 @@ public:
   }
 private:
   T default_value_;
+};
+
+class ConfigurationListParameter : public ParameterSpecification {
+public:
+  ConfigurationListParameter(const std::string& name,
+                             bool is_required,
+                             const class ConfigurationSpecification* cs);
+  virtual ParameterSpecification* copy() const;
+  virtual ~ConfigurationListParameter();
+private:
+  class ConfigurationSpecification* spec_;
+};
+
+class OneOfParameter : public ParameterSpecification {
+public:
+  OneOfParameter(const std::string& name,
+                 bool is_required,
+                 const std::map<std::string,
+                                class ConfigurationSpecification*> choices);
+  virtual ParameterSpecification* copy() const;
+  virtual ~OneOfParameter();
+private:
+  std::map<std::string, class ConfigurationSpecification*> choices_;
+};
+
+class MarkerParameter : public ParameterSpecification {
+public:
+  MarkerParameter(const std::string& name, bool is_required);
+  virtual ParameterSpecification* copy() const;
+  virtual ~MarkerParameter();
 };
 
 } // namespace config

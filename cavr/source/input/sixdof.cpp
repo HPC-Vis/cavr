@@ -5,6 +5,8 @@ namespace cavr {
 
 namespace input {
 
+const std::string SixDOF::type_name("SixDOF");
+
 SixDOF::SixDOF() 
   : state_(1.0) {
 }

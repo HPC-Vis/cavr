@@ -7,6 +7,25 @@ namespace cavr {
 
 namespace config {
 
+ConfigurationSpecification::
+ConfigurationSpecification(const ConfigurationSpecification& cs) {
+  for (const auto it : cs.parameters_) {
+    parameters_[it.first] = it.second->copy();
+  }
+}
+
+ConfigurationSpecification&
+ConfigurationSpecification::operator=(const ConfigurationSpecification& cs) {
+  for (auto it : parameters_) {
+    delete it.second;
+  }
+  parameters_.clear();
+  for (const auto it : cs.parameters_) {
+    parameters_[it.first] = it.second->copy();
+  }
+  return *this;
+}
+
 bool ConfigurationSpecification::
 addParameter(const ParameterSpecification* parameter) {
   const std::string& name = parameter->name();
@@ -95,8 +114,11 @@ ConfigurationSpecification::createFromLuaReader(LuaReader* reader,
       continue;
     }
     std::unique_ptr<ParameterSpecification> parameter = nullptr;
-    ParameterType parameter_type;
-    if ("number" == type_name) {
+    if ("boolean" == type_name) {
+      parameter.reset(new Parameter<bool>(parameter_name, is_required));
+      result &= 
+        is_required || setDefault<bool>(reader, prefix, parameter.get());
+    } else if ("number" == type_name) {
       parameter.reset(new Parameter<double>(parameter_name, is_required));
       result &= 
         is_required || setDefault<double>(reader, prefix, parameter.get());
@@ -108,6 +130,48 @@ ConfigurationSpecification::createFromLuaReader(LuaReader* reader,
       parameter.reset(new Parameter<transform>(parameter_name, is_required));
       result &= 
         is_required || setDefault<transform>(reader, prefix, parameter.get());
+    } else if ("string_list" == type_name) {
+      parameter.reset(new Parameter<std::vector<std::string>>(parameter_name,
+                                                              is_required));
+      result &=
+        is_required || setDefault<std::vector<std::string>>(reader,
+                                                            prefix,
+                                                            parameter.get());
+    } else if ("marker" == type_name) {
+      parameter.reset(new MarkerParameter(parameter_name, is_required));
+    } else if ("list" == type_name) {
+      ConfigurationSpecification* subspec =
+        createFromLuaReader(reader, prefix + ".subtype");
+      if (subspec) {
+        parameter.reset(new ConfigurationListParameter(parameter_name,
+                                                       is_required,
+                                                       subspec));
+        delete subspec;
+      } else {
+        LOG(ERROR) << "Failed to read subtype for list of " << parameter_name;
+        result = false;
+      }
+    } else if ("one_of" == type_name) {
+      std::vector<std::string> type_keys;
+      if (reader->getKeys(prefix + ".possibilities", type_keys)) {
+        std::map<std::string, ConfigurationSpecification*> choices;
+        for (const auto& type : type_keys) {
+          ConfigurationSpecification* subspec =
+            createFromLuaReader(reader, prefix + ".possibilities." + type);
+          if (subspec) {
+            choices[type] = subspec;
+          } else {
+            LOG(ERROR) << "Failed to read subconfiguration " << type;
+            result = false;
+          }
+        }
+        parameter.reset(new OneOfParameter(parameter_name,
+                                           is_required,
+                                           choices));
+        for (auto it : choices) {
+          delete it.second;
+        }
+      }
     } else {
       LOG(ERROR) << "parameter type unknown for " << parameter_name;
       result = false;

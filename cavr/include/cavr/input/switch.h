@@ -9,6 +9,7 @@ namespace input {
 
 class Switch : public Input {
 public:
+  static constexpr char type_name[] = "Switch";
   Switch(unsigned int num_states);
   void setStateName(unsigned int i, const std::string& name);
   void setStateDescription(unsigned int i, const std::string& description);

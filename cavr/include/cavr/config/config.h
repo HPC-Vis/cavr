@@ -1,6 +1,7 @@
 #pragma once
 #ifndef SWIG
 #include <cavr/math/matrix.h>
+#include <cavr/math/vector.h>
 #endif // SWIG
 
 namespace cavr {
@@ -35,6 +36,52 @@ transform translate(double x, double y, double z);
 transform rotate(double radians, double x, double y, double z);
 transform scale(double x, double y, double z);
 transform operator*(double v, const transform& t);
+
+class sixdof_marker {
+public:
+  sixdof_marker(const std::string& name);
+  sixdof_marker(const transform& pre,
+             const std::string& name,
+             const transform& post);
+  const std::string& name() const;
+  const transform& pretransform() const;
+  const transform& posttransform() const;
+private:
+  std::string name_;
+  transform pre_;
+  transform post_;
+};
+
+sixdof_marker sixdof(const std::string& name);
+sixdof_marker operator*(const transform& t, const sixdof_marker& r);
+sixdof_marker operator*(const sixdof_marker& r, const transform& t);
+
+class vec {
+public:
+#ifndef SWIG
+  vec(const math::vector::vec<double, 3>& v);
+#endif // SWIG
+  vec();
+  vec(double x);
+  vec(double x, double y, double z);
+  vec operator+(const vec& v) const;
+  vec operator-(const vec& v) const;
+  vec operator*(double v) const;
+  vec operator/(double v) const;
+  vec& operator+=(const vec& v);
+  vec& operator-=(const vec& v);
+  vec& operator*=(double v);
+  vec& operator/=(double v);
+  double& operator[](int i);
+  const double& operator[](int i) const;
+#ifndef SWIG
+  struct math::vector::vec<double, 3>* vector();
+  const struct math::vector::vec<double, 3>* vector() const;
+#endif // SWIG
+  ~vec();
+private:
+  struct math::vector::vec<double, 3>* v_;
+};
 
 } // namespace config
 

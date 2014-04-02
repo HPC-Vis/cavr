@@ -29,7 +29,7 @@ TEST(configuration_specification, from_buffer) {
     "  b = { type = \"string\"; required = true; };"
     "  c = { type = \"transform\";"
     "        required = false;"
-    "        default = cavr.identity(); "
+    "        default = cavr.identity();"
     "      };"
     "}";
   ConfigurationSpecification* spec =

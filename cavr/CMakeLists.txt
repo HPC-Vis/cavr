@@ -42,6 +42,8 @@ ADD_CUSTOM_TARGET(swigluart_header DEPENDS "${SWIG_LUART}")
 SET(cavr_sources
     "source/input/analog.cpp"
     "source/input/input.cpp"
+    "source/input/input_manager.cpp"
+    "source/input/marker.cpp"
     "source/input/sixdof.cpp"
     "source/input/switch.cpp"
     "source/math/matrix.cpp"

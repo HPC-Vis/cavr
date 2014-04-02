@@ -1,3 +1,4 @@
+#include <cavr/input/input_manager.h>
 #include <cavr/util/lua_state.h>
 #include <cavr/util/swigluart.h>
 
@@ -11,10 +12,9 @@ LuaState::LuaState() {
   L_ = lua_open();
   luaL_openlibs(L_);
   luaopen_cavr(L_);
-  transform_type_info_ = SWIG_TypeQuery(L_, "cavr::config::transform *");
-  if (nullptr == transform_type_info_) {
-    LOG(ERROR) << "Could not find swig type for transform.";
-  }
+  transform_type_info_ = getTypeInfo("cavr::config::transform *");
+  vector_type_info_ = getTypeInfo("cavr::config::vec *");
+  sixdof_marker_type_info_ = getTypeInfo("cavr::config::sixdof_marker *");
   stack_depth_ = 0;
 }
 
@@ -101,7 +101,42 @@ bool LuaState::readValue(config::transform& value) {
     value = *t;
     return true;
   }
+  LOG(ERROR) << "Failed to convert pointer for transform.";
   return false;
+}
+
+bool LuaState::readValue(input::Marker*& marker) {
+  config::vec* v = nullptr;
+  if (SWIG_IsOK(SWIG_ConvertPtr(L_, -1, (void**)&v, vector_type_info_, 0))) {
+    marker = new input::StaticMarker(*(v->vector()));
+    return true;
+  }
+  config::sixdof_marker* s = nullptr;
+  if (SWIG_IsOK(SWIG_ConvertPtr(L_, 
+                                -1, 
+                                (void**)&v, 
+                                sixdof_marker_type_info_, 
+                                0))) {
+    const input::SixDOF* sixdof = input::getSixDOF(s->name());
+    if (nullptr == sixdof) {
+      LOG(ERROR) << "Could not find SixDOF " << s->name() << " for marker.";
+      return false;
+    }
+    marker = new input::SixDOFMarker(*(s->pretransform().matrix()),
+                                     *(s->posttransform().matrix()),
+                                     sixdof);
+    return true;
+  }
+  return false;
+}
+
+bool LuaState::readValue(std::vector<std::string>& value) {
+  lua_pushnil(L_);
+  while (lua_next(L_, -2)) {
+    value.push_back(std::string(lua_tostring(L_, -1)));
+    lua_pop(L_, 1);
+  }
+  return true;
 }
 
 bool LuaState::readKeys(std::vector<std::string>& keys) {
@@ -119,6 +154,14 @@ lua_State* LuaState::getState() {
 
 int LuaState::getStackDepth() const {
   return stack_depth_;
+}
+
+swig_type_info* LuaState::getTypeInfo(const std::string& type) {
+  swig_type_info* type_info = SWIG_TypeQuery(L_, type.c_str());
+  if (nullptr == type_info) {
+    LOG(ERROR) << "Could not find swig type for " << type;
+  }
+  return type_info;
 }
 
 LuaState::~LuaState() {

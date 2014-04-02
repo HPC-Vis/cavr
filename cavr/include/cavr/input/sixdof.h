@@ -9,6 +9,7 @@ namespace input {
 
 class SixDOF : public Input {
 public:
+  static const std::string type_name; 
   SixDOF();
   math::vec3d getPosition() const;
   math::vec3d getForward() const;

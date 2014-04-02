@@ -10,6 +10,8 @@ namespace config {
 class ConfigurationSpecification {
 public:
   ConfigurationSpecification() = default;
+  ConfigurationSpecification(const ConfigurationSpecification& cs);
+  ConfigurationSpecification& operator=(const ConfigurationSpecification& cs);
   bool addParameter(const ParameterSpecification* parameter);
   const std::map<std::string, ParameterSpecification*>& getMap() const;
   static ConfigurationSpecification* createFromLuaFile(const std::string& path,

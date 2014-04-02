@@ -95,6 +95,112 @@ transform operator*(double v, const transform& t) {
   return transform(m);
 }
 
+sixdof_marker::sixdof_marker(const std::string& name)
+  : pre_(identity()),
+    post_(identity()),
+    name_(name) {
+}
+
+sixdof_marker::sixdof_marker(const transform& pre,
+                       const std::string& name,
+                       const transform& post) 
+  : pre_(pre),
+    post_(post),
+    name_(name) {
+}
+
+const std::string& sixdof_marker::name() const {
+  return name_;
+}
+
+const transform& sixdof_marker::pretransform() const {
+  return pre_;
+}
+
+const transform& sixdof_marker::posttransform() const {
+  return post_;
+}
+
+sixdof_marker sixdof(const std::string& name) {
+  return sixdof_marker(name);
+}
+
+sixdof_marker operator*(const transform& t, const sixdof_marker& r) {
+  return sixdof_marker(t * r.pretransform(), r.name(), r.posttransform());
+}
+
+sixdof_marker operator*(const sixdof_marker& r, const transform& t) {
+  return sixdof_marker(r.pretransform(), r.name(), r.posttransform() * t);
+}
+
+vec::vec(const math::vector::vec<double, 3>& v)
+  : v_(new math::vector::vec<double, 3>(v)) {
+}
+
+vec::vec() 
+  : v_(new math::vector::vec<double, 3>(0)) {
+}
+
+vec::vec(double x) 
+  : v_(new math::vector::vec<double, 3>(x)) {
+}
+
+vec::vec(double x, double y, double z) 
+  : v_(new math::vector::vec<double, 3>(x, y, z)) {
+}
+
+vec vec::operator+(const vec& v) const {
+  return vec(*vector() + *v.vector());
+}
+
+vec vec::operator-(const vec& v) const {
+  return vec(*vector() - *v.vector());
+}
+
+vec vec::operator*(double v) const {
+  return vec(*vector() * v);
+}
+
+vec vec::operator/(double v) const {
+  return vec(*vector() / v);
+}
+
+vec& vec::operator+=(const vec& v) {
+  *v_ += *v.vector();
+}
+
+vec& vec::operator-=(const vec& v) {
+  *v_ -= *v.vector();
+}
+
+vec& vec::operator*=(double v) {
+  *v_ *= v;
+}
+
+vec& vec::operator/=(double v) {
+  *v_ /= v;
+}
+
+double& vec::operator[](int i) {
+  return (*v_)[i];
+}
+
+const double& vec::operator[](int i) const {
+  return (*v_)[i];
+}
+
+struct math::vector::vec<double, 3>* vec::vector() {
+  return v_;
+}
+
+const struct math::vector::vec<double, 3>* vec::vector() const {
+  return v_;
+}
+
+vec::~vec() {
+  delete v_;
+}
+
 } // namespace config
 
 } // namespace cavr

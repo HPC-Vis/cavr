@@ -1,5 +1,6 @@
 #pragma once
 #include <cavr/config/config.h>
+#include <cavr/input/marker.h>
 #include <type_traits>
 
 #include <glog/logging.h>
@@ -29,16 +30,21 @@ public:
   bool readValue(std::string& value);
   bool readValue(bool& value);
   bool readValue(config::transform& value);
+  bool readValue(std::vector<std::string>& value);
+  bool readValue(input::Marker*& value);
   bool readKeys(std::vector<std::string>& keys);
   template<typename T> 
   bool getValue(const std::string& key, T& value);
   lua_State* getState();
   int getStackDepth() const;
+  swig_type_info* getTypeInfo(const std::string& type);
   ~LuaState();
 private:
   lua_State* L_;
   int stack_depth_;
   struct swig_type_info* transform_type_info_;
+  struct swig_type_info* vector_type_info_;
+  struct swig_type_info* sixdof_marker_type_info_;
 };
 
 template<typename T, typename>
