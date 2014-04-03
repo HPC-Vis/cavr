@@ -90,6 +90,25 @@ ParameterSpecification* ConfigurationListParameter::copy() const {
   return result;
 }
 
+bool ConfigurationListParameter::configure(Configuration* configuration,
+                                           LuaReader* reader,
+                                           const std::string& base) {
+  std::string path = base + "." + name();
+  std::vector<std::string> keys;
+  if (!reader->getKeys(path, keys)) {
+    LOG(ERROR) << path << " must be a table/list";
+    return false;
+  }
+  for (const auto& key : keys) {
+    if (!spec_->configure(reader, path + "." + key, configuration)) {
+      LOG(ERROR) << path << "." << key << " is not valid.";
+      return false;
+    }
+  }
+  configuration->add(path + ".__keys", keys);
+  return true;
+}
+
 ConfigurationListParameter::~ConfigurationListParameter() {
   if (spec_) {
     delete spec_;
@@ -112,6 +131,36 @@ ParameterSpecification* OneOfParameter::copy() const {
   return result;
 }
 
+bool OneOfParameter::configure(Configuration* configuration,
+                               LuaReader* reader,
+                               const std::string& base) {
+  std::string path = base + "." + name();
+  bool configured = false;
+  std::vector<std::string> matched_choices;
+  for (auto it : choices_) {
+    Configuration choice_config;
+    if (it.second->configure(reader, path, &choice_config)) {
+      matched_choices.push_back(it.first);
+      if (!configured) {
+        configuration->absorb(&choice_config);
+        configured = true;
+      }
+    }
+  }
+  if (matched_choices.size() > 1) {
+    LOG(ERROR) << "Configuration of " << path << " matched multiple choices:";
+    for (auto choice : matched_choices) {
+      LOG(ERROR) << "  " << choice;
+    }
+    return false;
+  }
+  if (!configured) {
+    LOG(ERROR) << "Configuration of " << path << " matches no possibilities.";
+    return false;
+  }
+  return true;
+}
+
 OneOfParameter::~OneOfParameter() {
   for (auto it : choices_) {
     delete it.second;
@@ -125,6 +174,20 @@ MarkerParameter::MarkerParameter(const std::string& name, bool is_required)
 
 ParameterSpecification* MarkerParameter::copy() const {
   return new MarkerParameter(name(), required());
+}
+
+bool MarkerParameter::configure(Configuration* configuration,
+                                LuaReader* reader,
+                                const std::string& base) {
+  std::string path = base + "." + name();
+  input::Marker* marker;
+  bool specified = reader->get(path, marker);
+  if (!specified) {
+    LOG(ERROR) << path << " must be specified.";
+    return false;
+  }
+  configuration->add(path, marker);
+  return true;
 }
 
 MarkerParameter::~MarkerParameter() {

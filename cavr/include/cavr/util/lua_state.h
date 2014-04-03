@@ -18,6 +18,7 @@ class LuaState {
 public:
   LuaState();
   bool loadBuffer(const std::string& buffer);
+  bool loadFile(const std::string& path);
   bool pushTable(const std::string& name);
   bool popTable(const std::string& name);
   bool pushValue(const std::string& key);

@@ -43,6 +43,11 @@ ConfigurationSpecification::getMap() const {
   return parameters_;
 }
 
+bool ConfigurationSpecification::configure(LuaReader* reader,
+                                           const std::string& name,
+                                           Configuration* configuration) {
+}
+
 ConfigurationSpecification::~ConfigurationSpecification() {
   for (auto it : parameters_) {
     delete it.second;

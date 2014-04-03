@@ -1,5 +1,6 @@
 #include <cavr/input/input_manager.h>
 #include <cavr/util/lua_state.h>
+#include <cavr/util/string.h>
 #include <cavr/util/swigluart.h>
 
 extern "C" int luaopen_cavr(lua_State* L);
@@ -20,6 +21,36 @@ LuaState::LuaState() {
 
 bool LuaState::loadBuffer(const std::string& buffer) {
   if (0 != luaL_loadbuffer(L_, buffer.c_str(), buffer.length(), "")) {
+    LOG(ERROR) << "Could not load Lua file." << std::endl;
+    LOG(ERROR) << lua_tostring(L_, -1);
+    return false;
+  }
+  if (0 != lua_pcall(L_, 0, 0, 0)) {
+    LOG(ERROR) << "Could not execute Lua file." << std::endl;
+    LOG(ERROR) << lua_tostring(L_, -1);
+    return false;
+  }
+  return true;
+}
+
+bool LuaState::loadFile(const std::string& path) {
+  std::string path_to_file, file_name;
+  util::String::rsplit(path, "/", path_to_file, file_name);
+  std::string import_function =
+    "import = function(s) dofile(\"" + path_to_file + "/" + "\" .. s) end";
+  if (!loadBuffer(import_function)) {
+    LOG(ERROR) << "Failed to load import function.";
+    return false;
+  }
+  char hostname[512];
+  gethostname(hostname, 512);
+  std::string hostname_setting =
+    "HOSTNAME = \"" + std::string(hostname) + "\";";
+  if (!loadBuffer(hostname_setting)) {
+    LOG(ERROR) <<" Failed to set hostname.";
+    return false;
+  }
+  if (0 != luaL_loadfile(L_, path.c_str())) {
     LOG(ERROR) << "Could not load Lua file." << std::endl;
     LOG(ERROR) << lua_tostring(L_, -1);
     return false;

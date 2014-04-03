@@ -1,5 +1,7 @@
 #pragma once
 #include <cavr/config/config.h>
+#include <cavr/config/configuration.h>
+#include <cavr/config/lua_reader.h>
 #include <cavr/config/parameter_types.h>
 
 #include <map>
@@ -34,6 +36,9 @@ public:
   virtual bool getDefault(std::vector<std::string>& value) const;
 
   virtual ParameterSpecification* copy() const = 0;
+  virtual bool configure(Configuration* configuration,
+                         LuaReader* reader,
+                         const std::string& base) = 0;
 private:
   ParameterType type_;
   std::string name_;
@@ -62,6 +67,23 @@ public:
     result->setDefault(default_value_);
     return result;
   }
+
+  virtual bool configure(Configuration* configuration,
+                         LuaReader* reader,
+                         const std::string& base) {
+    std::string path = base + "." + name();
+    T value;
+    bool specified = reader->get(path, value);
+    if (!specified && required()) {
+      LOG(ERROR) << path << " must be specified.";
+      return false;
+    }
+    if (!specified) {
+      value = default_value_;
+    }
+    configuration->add(path, value);
+    return true;
+  }
 private:
   T default_value_;
 };
@@ -72,6 +94,9 @@ public:
                              bool is_required,
                              const class ConfigurationSpecification* cs);
   virtual ParameterSpecification* copy() const;
+  virtual bool configure(Configuration* configuration,
+                         LuaReader* reader,
+                         const std::string& base);
   virtual ~ConfigurationListParameter();
 private:
   class ConfigurationSpecification* spec_;
@@ -84,6 +109,9 @@ public:
                  const std::map<std::string,
                                 class ConfigurationSpecification*> choices);
   virtual ParameterSpecification* copy() const;
+  virtual bool configure(Configuration* configuration,
+                         LuaReader* reader,
+                         const std::string& base);
   virtual ~OneOfParameter();
 private:
   std::map<std::string, class ConfigurationSpecification*> choices_;
@@ -93,6 +121,9 @@ class MarkerParameter : public ParameterSpecification {
 public:
   MarkerParameter(const std::string& name, bool is_required);
   virtual ParameterSpecification* copy() const;
+  virtual bool configure(Configuration* configuration,
+                         LuaReader* reader,
+                         const std::string& base);
   virtual ~MarkerParameter();
 };
 

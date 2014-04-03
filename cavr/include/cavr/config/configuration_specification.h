@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 
+#include <cavr/config/configuration.h>
 #include <cavr/config/parameter_specification.h>
 
 namespace cavr {
@@ -14,6 +15,9 @@ public:
   ConfigurationSpecification& operator=(const ConfigurationSpecification& cs);
   bool addParameter(const ParameterSpecification* parameter);
   const std::map<std::string, ParameterSpecification*>& getMap() const;
+  bool configure(class LuaReader* reader,
+                 const std::string& name,
+                 Configuration* configuration);
   static ConfigurationSpecification* createFromLuaFile(const std::string& path,
                                                        const std::string& name);
   static ConfigurationSpecification*
