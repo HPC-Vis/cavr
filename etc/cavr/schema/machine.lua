@@ -1,3 +1,5 @@
+import("plugin.lua")
+
 machine = {
   hostname = {
     type = "string";
@@ -14,4 +16,9 @@ machine = {
     required = true;
     description = "zeromq-style address of the machine for communications";
   }; -- address
+  plugins = {
+    type = "list";
+    required = true;
+    subtype = plugin;
+  }; -- plugins
 }; -- machine

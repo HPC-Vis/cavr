@@ -17,13 +17,15 @@ public:
   const std::map<std::string, ParameterSpecification*>& getMap() const;
   bool configure(class LuaReader* reader,
                  const std::string& name,
-                 Configuration* configuration);
+                 Configuration* configuration) const;
   static ConfigurationSpecification* createFromLuaFile(const std::string& path,
                                                        const std::string& name);
   static ConfigurationSpecification*
     createFromLuaBuffer(const std::string& buffer, const std::string& name);
   static ConfigurationSpecification*
     createFromLuaReader(class LuaReader* reader, const std::string& name); 
+  static ConfigurationSpecification*
+    createFromSchema(const std::string& path, const std::string& name);
   ~ConfigurationSpecification();
 private:
   std::map<std::string, ParameterSpecification*> parameters_;

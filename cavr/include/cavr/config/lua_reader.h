@@ -36,7 +36,7 @@ bool LuaReader::get(const std::string& path, T& value) {
   std::string var_name = path_parts.back();
   path_parts.pop_back();
   for (const auto& part : path_parts) {
-    if (!lua_state_.pushTable(part)) {
+    if (!part.empty() && !lua_state_.pushTable(part)) {
       LOG(ERROR) << "Invalid path: " << path;
       lua_state_.reset();
       return false;

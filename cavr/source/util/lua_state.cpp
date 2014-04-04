@@ -1,4 +1,5 @@
 #include <cavr/input/input_manager.h>
+#include <cavr/util/environment.h>
 #include <cavr/util/lua_state.h>
 #include <cavr/util/string.h>
 #include <cavr/util/swigluart.h>
@@ -42,8 +43,7 @@ bool LuaState::loadFile(const std::string& path) {
     LOG(ERROR) << "Failed to load import function.";
     return false;
   }
-  char hostname[512];
-  gethostname(hostname, 512);
+  std::string hostname = util::Environment::hostname();
   std::string hostname_setting =
     "HOSTNAME = \"" + std::string(hostname) + "\";";
   if (!loadBuffer(hostname_setting)) {

@@ -1,5 +1,7 @@
 #include <cavr/config/configuration_specification.h>
 #include <cavr/config/lua_reader.h>
+#include <cavr/util/file.h>
+#include <cavr/util/paths.h>
 #include <glog/logging.h>
 #include <memory>
 
@@ -45,7 +47,15 @@ ConfigurationSpecification::getMap() const {
 
 bool ConfigurationSpecification::configure(LuaReader* reader,
                                            const std::string& name,
-                                           Configuration* configuration) {
+                                           Configuration* configuration) const {
+  bool result = true;
+  for (auto it : parameters_) {
+    if (!it.second->configure(configuration, reader, name)) {
+      LOG(INFO) << "Failed to configure " << name << "." << it.first;
+      result = false;
+    }
+  }
+  return result;
 }
 
 ConfigurationSpecification::~ConfigurationSpecification() {
@@ -79,6 +89,18 @@ ConfigurationSpecification::createFromLuaBuffer(const std::string& buffer,
   ConfigurationSpecification* spec = createFromLuaReader(reader, name);
   delete reader;
   return spec;
+}
+
+ConfigurationSpecification*
+ConfigurationSpecification::createFromSchema(const std::string& path,
+                                             const std::string& name) {
+  std::vector<std::string> schema_paths = util::Paths::getSchemaPaths();
+  std::string schema_path;
+  if (!util::File::find(path, schema_paths, schema_path)) {
+    LOG(ERROR) << "Could not find schema file " << path;
+    return nullptr;
+  }
+  return createFromLuaFile(schema_path, name);
 }
 
 template<typename T>

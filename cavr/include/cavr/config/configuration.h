@@ -11,7 +11,11 @@ class Configuration {
 public:
   template<typename T>
   bool add(const std::string& name, const T& value) {
-    values_[name] = new Value<T>(value);
+    if (!name.empty() && name[0] == '.') {
+      values_[name.c_str() + 1] = new Value<T>(value);
+    } else {
+      values_[name] = new Value<T>(value);
+    }
     return true;
   }
   template<typename T>
@@ -19,9 +23,9 @@ public:
     auto result = values_.find(name);
     if (values_.end() == result) {
       LOG(ERROR) << "Configuration does not contain " << name;
-      return T(0);
     }
-    return dynamic_cast<Value<T>*>(result->second)->value;
+    const ValueBase* v = result->second;
+    return ((const Value<T>*)v)->value;
   }
   bool absorb(Configuration* configuration);
   ~Configuration();

@@ -1,10 +1,12 @@
 #pragma once
+#include <cavr/plugin.h>
 #include <cavr/config/lua_reader.h>
 #include <functional>
 #include <map>
 #include <string>
 #include <thread>
 #include <vector>
+#include <unistd.h>
 
 namespace cavr {
 
@@ -24,8 +26,12 @@ private:
   struct Data {
     std::map<std::string, std::function<void()>> callbacks;
     bool terminated;
+    bool master;
     std::vector<std::thread> threads;
     std::unique_ptr<config::LuaReader> config_reader;
+    std::vector<pid_t> remote_pids;
+    std::string machine_name;
+    std::map<std::string, PluginGeneratorBase*> plugin_generators;
   };
   static Data data_;
 };

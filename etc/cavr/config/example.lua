@@ -5,10 +5,14 @@ x11_renderer = {
   };
 };
 
-machines = {
-  self = {
-    hostname = HOSTNAME;
-    ssh = HOSTNAME;
-    address = "tcp://" .. HOSTNAME .. ":8888";
+self = {
+  hostname = HOSTNAME;
+  ssh = HOSTNAME;
+  address = "tcp://" .. HOSTNAME .. ":8888";
+  plugins = {
   };
+};
+
+machines = {
+  self = self;
 };

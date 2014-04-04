@@ -40,6 +40,13 @@ TEST(string, split) {
   EXPECT_EQ("ant", strings[0]);
   EXPECT_EQ("bear", strings[1]);
   EXPECT_EQ("cat-->dog-->elk", strings[2]);
+  strings.clear();
+  String::split(".quas.wex.exort", ".", strings);
+  ASSERT_EQ(4, strings.size());
+  EXPECT_EQ("", strings[0]);
+  EXPECT_EQ("quas", strings[1]);
+  EXPECT_EQ("wex", strings[2]);
+  EXPECT_EQ("exort", strings[3]);
 }
 
 TEST(string, rsplit) {

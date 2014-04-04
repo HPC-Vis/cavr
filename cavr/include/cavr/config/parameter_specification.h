@@ -38,7 +38,7 @@ public:
   virtual ParameterSpecification* copy() const = 0;
   virtual bool configure(Configuration* configuration,
                          LuaReader* reader,
-                         const std::string& base) = 0;
+                         const std::string& base) const = 0;
 private:
   ParameterType type_;
   std::string name_;
@@ -70,7 +70,7 @@ public:
 
   virtual bool configure(Configuration* configuration,
                          LuaReader* reader,
-                         const std::string& base) {
+                         const std::string& base) const {
     std::string path = base + "." + name();
     T value;
     bool specified = reader->get(path, value);
@@ -96,7 +96,7 @@ public:
   virtual ParameterSpecification* copy() const;
   virtual bool configure(Configuration* configuration,
                          LuaReader* reader,
-                         const std::string& base);
+                         const std::string& base) const;
   virtual ~ConfigurationListParameter();
 private:
   class ConfigurationSpecification* spec_;
@@ -111,7 +111,7 @@ public:
   virtual ParameterSpecification* copy() const;
   virtual bool configure(Configuration* configuration,
                          LuaReader* reader,
-                         const std::string& base);
+                         const std::string& base) const;
   virtual ~OneOfParameter();
 private:
   std::map<std::string, class ConfigurationSpecification*> choices_;
@@ -123,7 +123,7 @@ public:
   virtual ParameterSpecification* copy() const;
   virtual bool configure(Configuration* configuration,
                          LuaReader* reader,
-                         const std::string& base);
+                         const std::string& base) const;
   virtual ~MarkerParameter();
 };
 

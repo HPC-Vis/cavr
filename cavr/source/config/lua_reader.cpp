@@ -13,7 +13,7 @@ bool LuaReader::getKeys(const std::string& path,
   std::vector<std::string> path_parts;
   util::String::split(path, ".", path_parts);
   for (const auto& part : path_parts) {
-    if (!lua_state_.pushTable(part)) {
+    if (!part.empty() && !lua_state_.pushTable(part)) {
       LOG(ERROR) << "Invalid path: " << path;
       lua_state_.reset();
       return false;

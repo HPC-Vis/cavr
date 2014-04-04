@@ -92,7 +92,7 @@ ParameterSpecification* ConfigurationListParameter::copy() const {
 
 bool ConfigurationListParameter::configure(Configuration* configuration,
                                            LuaReader* reader,
-                                           const std::string& base) {
+                                           const std::string& base) const {
   std::string path = base + "." + name();
   std::vector<std::string> keys;
   if (!reader->getKeys(path, keys)) {
@@ -133,7 +133,7 @@ ParameterSpecification* OneOfParameter::copy() const {
 
 bool OneOfParameter::configure(Configuration* configuration,
                                LuaReader* reader,
-                               const std::string& base) {
+                               const std::string& base) const {
   std::string path = base + "." + name();
   bool configured = false;
   std::vector<std::string> matched_choices;
@@ -178,7 +178,7 @@ ParameterSpecification* MarkerParameter::copy() const {
 
 bool MarkerParameter::configure(Configuration* configuration,
                                 LuaReader* reader,
-                                const std::string& base) {
+                                const std::string& base) const {
   std::string path = base + "." + name();
   input::Marker* marker;
   bool specified = reader->get(path, marker);
