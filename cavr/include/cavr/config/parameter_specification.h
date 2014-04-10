@@ -46,6 +46,23 @@ private:
 };
 
 template<typename T>
+inline std::string to_string(const T& t) {
+  return std::to_string(t);
+}
+
+inline std::string to_string(const std::vector<std::string>& t) {
+  return "";
+}
+
+inline std::string to_string(const transform& t) {
+  return "";
+}
+
+inline std::string to_string(const std::string& t) {
+  return t;
+}
+
+template<typename T>
 class Parameter : public ParameterSpecification {
 public:
   Parameter(const std::string& name, bool is_required)
@@ -79,6 +96,8 @@ public:
       return false;
     }
     if (!specified) {
+      LOG(INFO) << path << " was not specified. Using default value of " <<
+        to_string(default_value_);
       value = default_value_;
     }
     configuration->add(path, value);

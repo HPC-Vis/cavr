@@ -11,7 +11,7 @@ void update() {
 }
 
 int main(int argc, char** argv) {
-  if (!cavr::System::init(argc, argv)) {
+  if (!cavr::System::init(argc, argv, nullptr)) {
     LOG(ERROR) << "Failed to initialize cavr.";
     return -1;
   }

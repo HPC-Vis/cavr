@@ -4,6 +4,26 @@ namespace cavr {
 
 namespace config {
 
+void Configuration::pushPrefix(const std::string& prefix) {
+  if (getPrefix().empty()) {
+    access_prefixes_.push(prefix);
+  } else {
+    access_prefixes_.push(getPrefix() + prefix);
+  }
+}
+
+const std::string& Configuration::getPrefix() const {
+  if (!access_prefixes_.empty()) {
+    return access_prefixes_.top();
+  }
+  static std::string empty("");
+  return empty;
+}
+
+void Configuration::popPrefix(const std::string& prefix) {
+  access_prefixes_.pop();
+}
+
 bool Configuration::absorb(Configuration* configuration) {
   for (auto it : configuration->values_) {
     auto result = values_.find(it.first);

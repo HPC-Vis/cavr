@@ -1,6 +1,7 @@
 #pragma once
 #include <glog/logging.h>
 #include <map>
+#include <stack>
 #include <string>
 
 namespace cavr {
@@ -9,6 +10,9 @@ namespace config {
 
 class Configuration {
 public:
+  void pushPrefix(const std::string& prefix);
+  const std::string& getPrefix() const;
+  void popPrefix(const std::string& prefix);
   template<typename T>
   bool add(const std::string& name, const T& value) {
     if (!name.empty() && name[0] == '.') {
@@ -20,9 +24,9 @@ public:
   }
   template<typename T>
   const T& get(const std::string& name) const {
-    auto result = values_.find(name);
+    auto result = values_.find(getPrefix() + name);
     if (values_.end() == result) {
-      LOG(ERROR) << "Configuration does not contain " << name;
+      LOG(ERROR) << "Configuration does not contain " << getPrefix() + name;
     }
     const ValueBase* v = result->second;
     return ((const Value<T>*)v)->value;
@@ -30,6 +34,7 @@ public:
   bool absorb(Configuration* configuration);
   ~Configuration();
 private:
+  std::stack<std::string> access_prefixes_;
   struct ValueBase {
   };
 

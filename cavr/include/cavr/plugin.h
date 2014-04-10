@@ -7,9 +7,8 @@ namespace cavr {
 class Plugin {
 public:
   virtual bool step() = 0;
-  virtual bool init(const config::Configuration& config) = 0;
+  virtual bool init(config::Configuration& config) = 0;
 private:
-  config::ConfigurationSpecification* config_spec_;
 };
 
 class PluginGeneratorBase {
@@ -41,7 +40,7 @@ public:
     return spec_;
   }
 
-  T* generate() const {
+  Plugin* generate() const {
     return new T;
   }
 private:

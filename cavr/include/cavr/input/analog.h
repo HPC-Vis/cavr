@@ -1,4 +1,5 @@
 #pragma once
+#include <cavr/lock.h>
 #include <cavr/input/input.h>
 
 namespace cavr {
@@ -7,17 +8,16 @@ namespace input {
 
 class Analog : public Input {
 public:
-  Analog(double min = -1.0, double max = 1.0);
-  double getMin() const;
-  double getMax() const;
-  void setMin(double min);
-  void setMax(double max);
+  static const std::string type_name;
+  Analog();
   double getValue() const;
   void setValue(double value);
+  void sync();
 private:
   double value_;
-  double min_;
-  double max_;
+  double live_value_;
+  mutable Lock live_lock_;
+  mutable Lock sync_lock_;
 };
 
 } // namespace input

@@ -37,16 +37,12 @@ bool LuaReader::get(const std::string& path, T& value) {
   path_parts.pop_back();
   for (const auto& part : path_parts) {
     if (!part.empty() && !lua_state_.pushTable(part)) {
-      LOG(ERROR) << "Invalid path: " << path;
       lua_state_.reset();
       return false;
     }
   }
   bool result = lua_state_.getValue(var_name, value);
   lua_state_.reset();
-  if (!result) {
-    LOG(ERROR) << "Invalid variable: " << path;
-  }
   return result;
 }
 

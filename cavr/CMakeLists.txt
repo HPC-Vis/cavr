@@ -6,6 +6,8 @@ FIND_PACKAGE(Lua51 REQUIRED)
 FIND_PACKAGE(SWIG REQUIRED)
 FIND_PACKAGE(GLOG REQUIRED)
 FIND_PACKAGE(GFLAGS REQUIRED)
+FIND_PACKAGE(Protobuf REQUIRED)
+FIND_LIBRARY(ZMQ_LIB zmq)
 
 INCLUDE_DIRECTORIES(
     "include" 
@@ -14,6 +16,12 @@ INCLUDE_DIRECTORIES(
     "${LUA_INCLUDE_DIR}"
     "${GLOG_INCLUDE_DIRS}"
     "${GFLAGS_INCLUDE_DIRS}"
+)
+
+SET(CAVR_INCLUDES
+    ${gtest_SOURCE_DIR}/include
+    ${cavr_SOURCE_DIR}/include
+    ${LUA_INCLUDE_DIR}
 )
 
 INCLUDE(${SWIG_USE_FILE})
@@ -42,15 +50,24 @@ ADD_CUSTOM_COMMAND(OUTPUT "${SWIG_LUART}"
 SET_SOURCE_FILES_PROPERTIES("${SWIG_LUART}" GENERATED)
 ADD_CUSTOM_TARGET(swigluart_header DEPENDS "${SWIG_LUART}")
 
+SET(protobuf_files
+    "include/cavr/com/device_inputs.proto"
+)
+PROTOBUF_GENERATE_CPP(protobuf_sources protobuf_headers ${protobuf_files})
+
 SET(cavr_sources
     "source/input/analog.cpp"
+    "source/input/button.cpp"
     "source/input/input.cpp"
     "source/input/input_manager.cpp"
+    "source/input/input_map.cpp"
     "source/input/marker.cpp"
     "source/input/sixdof.cpp"
+    "source/input/specification.cpp"
     "source/input/switch.cpp"
     "source/math/matrix.cpp"
     "source/math/vector.cpp"
+    "source/com/communications.cpp"
     "source/config/config.cpp"
     "source/config/configuration.cpp"
     "source/config/configuration_specification.cpp"
@@ -65,13 +82,15 @@ SET(cavr_sources
     "source/system.cpp"
 )
 
-ADD_LIBRARY(cavr SHARED ${cavr_sources} ${CAVR_CONFIG_LUA})
+ADD_LIBRARY(cavr SHARED ${cavr_sources} ${CAVR_CONFIG_LUA} ${protobuf_sources})
 ADD_DEPENDENCIES(cavr swigluart_header cavr_config_lua_cpp)
 TARGET_LINK_LIBRARIES(cavr
                       ${PROTOBUF_LIBRARIES}
                       ${GLOG_LIBRARIES}
                       ${LUA_LIBRARIES}
-                      ${GFLAGS_LIBRARIES})
+                      ${GFLAGS_LIBRARIES}
+                      ${ZMQ_LIB}
+)
 SET_TARGET_PROPERTIES(cavr PROPERTIES LINKER_LANGUAGE CXX)
 
 INSTALL(DIRECTORY include/cavr

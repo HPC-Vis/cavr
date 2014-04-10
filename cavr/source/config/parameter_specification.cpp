@@ -158,6 +158,7 @@ bool OneOfParameter::configure(Configuration* configuration,
     LOG(ERROR) << "Configuration of " << path << " matches no possibilities.";
     return false;
   }
+  configuration->add(path, matched_choices[0]);
   return true;
 }
 
@@ -181,7 +182,7 @@ bool MarkerParameter::configure(Configuration* configuration,
                                 const std::string& base) const {
   std::string path = base + "." + name();
   input::Marker* marker;
-  bool specified = reader->get(path, marker);
+  bool specified = reader->get<input::Marker*>(path, marker);
   if (!specified) {
     LOG(ERROR) << path << " must be specified.";
     return false;

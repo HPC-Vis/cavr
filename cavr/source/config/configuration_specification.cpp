@@ -195,9 +195,6 @@ ConfigurationSpecification::createFromLuaReader(LuaReader* reader,
         parameter.reset(new OneOfParameter(parameter_name,
                                            is_required,
                                            choices));
-        for (auto it : choices) {
-          delete it.second;
-        }
       }
     } else {
       LOG(ERROR) << "parameter type unknown for " << parameter_name;

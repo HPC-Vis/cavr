@@ -1,0 +1,7 @@
+package cavr.com;
+
+message DeviceInputs {
+  repeated string buttons = 1;
+  repeated string analogs = 2;
+  repeated string sixdofs = 3;
+};

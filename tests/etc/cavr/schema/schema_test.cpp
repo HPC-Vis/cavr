@@ -20,6 +20,7 @@ TEST(schema_files, system) {
   };
   check_system("machine");
   check_system("globals");
+  check_system("inputs_file");
 }
 
 TEST(schema_files, input) {
@@ -34,6 +35,8 @@ TEST(schema_files, input) {
     ASSERT_NE(nullptr, spec) << "Invalid schema for " << name;
     delete spec;
   };
+  check_input("button");
+  check_input("switch");
   check_input("analog");
   check_input("sixdof");
 }

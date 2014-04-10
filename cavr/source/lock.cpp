@@ -26,4 +26,22 @@ Lock::~Lock() {
   pthread_rwlock_destroy(&lock_);
 }
 
+ReadLock::ReadLock(Lock* lock)
+  : lock_(lock) {
+  lock_->readLock();
+}
+
+ReadLock::~ReadLock() {
+  lock_->readUnlock();
+}
+
+WriteLock::WriteLock(Lock* lock)
+  : lock_(lock) {
+  lock_->writeLock();
+}
+
+WriteLock::~WriteLock() {
+  lock_->writeUnlock();
+}
+
 } // namespace cavr

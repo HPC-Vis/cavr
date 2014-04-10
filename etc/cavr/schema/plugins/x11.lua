@@ -1,4 +1,4 @@
-active_stereo_eyes = {
+stereo_eyes = {
   left_eye = {
     required = true;
     type = "marker";
@@ -9,6 +9,11 @@ active_stereo_eyes = {
     type = "marker";
     description = "marker for the right eye";
   }; -- right eye
+  stereo = {
+    required = true;
+    type = "string";
+    description = "type of stereoscopy to use";
+  }; -- stereo
 }; --active_stereo_eyes
 
 mono_eyes = {
@@ -39,7 +44,7 @@ perspective_render = {
     required = true;
     type = "one_of";
     possibilities = {
-      active_stereo = active_stereo_eyes;
+      stereo = stereo_eyes;
       mono = mono_eyes;
     }; -- possibilities
   }; -- eyes

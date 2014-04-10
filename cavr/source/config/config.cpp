@@ -1,4 +1,5 @@
 #include <cavr/config/config.h>
+#include <cavr/input/input_manager.h>
 #include <cavr/math/matrix.h>
 using cavr::math::mat4d;
 
@@ -99,6 +100,8 @@ sixdof_marker::sixdof_marker(const std::string& name)
   : pre_(identity()),
     post_(identity()),
     name_(name) {
+  // Instantiates the sixDOF if it wasn't already created
+  input::getSixDOF.byAliasOrCreate(name);
 }
 
 sixdof_marker::sixdof_marker(const transform& pre,

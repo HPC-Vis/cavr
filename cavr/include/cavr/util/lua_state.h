@@ -61,11 +61,9 @@ bool LuaState::readValue(T& value) {
 template<typename T>
 bool LuaState::getValue(const std::string& key, T& value) {
   if (!pushValue(key)) {
-    LOG(ERROR) << key << " does not exist.";
     return false;
   }
   if (!readValue(value)) {
-    LOG(ERROR) << "Failed to read key " << key;
     popValue(key);
     return false;
   }

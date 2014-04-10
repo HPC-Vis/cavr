@@ -70,13 +70,24 @@ bool LuaState::pushValue(const std::string& name) {
     lua_pushstring(L_, name.c_str());
     lua_gettable(L_, -2);
   }
-  if (lua_isnil(L_, -1)) {
-    LOG(ERROR) << name << " is nil.";
-    lua_pop(L_, 1);
-    return false;
+  if (!lua_isnil(L_, -1)) {
+    ++stack_depth_;
+    return true;
   }
-  ++stack_depth_;
-  return true;
+  lua_pop(L_, 1);
+  if (stack_depth_ > 0 &&
+      !name.empty() &&
+      name.find_first_not_of("0123456789") == std::string::npos) {
+    lua_pushinteger(L_, atoi(name.c_str()));
+    lua_gettable(L_, -2);
+    if (!lua_isnil(L_, -1)) {
+      ++stack_depth_;
+      return true;
+    } else {
+      lua_pop(L_, 1);
+    }
+  }
+  return false;
 }
 
 bool LuaState::popValue(const std::string& name) {
@@ -86,9 +97,11 @@ bool LuaState::popValue(const std::string& name) {
 }
 
 bool LuaState::pushTable(const std::string& name) {
-  if (!pushValue(name) || !lua_istable(L_, -1)) {
-    LOG(ERROR) << name << " is not a table";
-    lua_pop(L_, 1);
+  if (!pushValue(name)) {
+    return false;
+  }
+  if (!lua_istable(L_, -1)) {
+    popValue(name);
     return false;
   }
   return true;
@@ -138,6 +151,7 @@ bool LuaState::readValue(config::transform& value) {
 
 bool LuaState::readValue(input::Marker*& marker) {
   config::vec* v = nullptr;
+  LOG(INFO) << "MARKER";
   if (SWIG_IsOK(SWIG_ConvertPtr(L_, -1, (void**)&v, vector_type_info_, 0))) {
     marker = new input::StaticMarker(*(v->vector()));
     return true;
@@ -173,7 +187,10 @@ bool LuaState::readValue(std::vector<std::string>& value) {
 bool LuaState::readKeys(std::vector<std::string>& keys) {
   lua_pushnil(L_);
   while (lua_next(L_, -2)) {
-    keys.push_back(std::string(lua_tostring(L_, -2)));
+    lua_pushvalue(L_, -2);
+    keys.push_back(std::string(lua_tostring(L_, -1)));
+    lua_pop(L_, 1);
+    //keys.push_back(std::string(lua_tostring(L_, -2)));
     lua_pop(L_, 1);
   }
   return true;
