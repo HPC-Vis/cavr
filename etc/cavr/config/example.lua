@@ -4,11 +4,18 @@ sim_window = {
   };
 };
 
+sim_window = {
+  view = {
+    simulator_view = true;
+  };
+};
+
 x11_renderer = {
   type = "x11gl";
   display = ":0.0";
   windows = {
     sim_window = sim_window;
+    sim_window2 = sim_window;
   };
 };
 

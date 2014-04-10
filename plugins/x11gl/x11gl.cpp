@@ -1,9 +1,13 @@
-#include <GL/gl.h>
-#include <GL/glx.h>
 #include "x11gl.h"
 using namespace cavr;
 
 namespace x11 {
+
+std::mutex X11GL::x_mutex_;
+
+std::mutex& X11GL::mutex() {
+  return x_mutex_;
+}
 
 X11GL::X11GL()
   : display_(nullptr) {
@@ -17,6 +21,11 @@ bool X11GL::init(cavr::config::Configuration& config) {
     config.pushPrefix(window_name + ".");
     Window* window = Window::configure(config);
     config.popPrefix(window_name + ".");
+    if (window) {
+      windows_.push_back(window);
+    } else {
+      LOG(ERROR) << "Failed to configure window";
+    }
   }
   config.popPrefix("windows.");
   display_ = XOpenDisplay(display_name_.empty()? NULL : display_name_.c_str());
@@ -25,26 +34,27 @@ bool X11GL::init(cavr::config::Configuration& config) {
     return false;
   }
 
-  std::vector<int> visual_attribs( {
-    GLX_X_RENDERABLE, True,
-    GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-    GLX_RENDER_TYPE, GLX_RGBA_BIT,
-    GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
-    GLX_RED_SIZE, 8,
-    GLX_GREEN_SIZE, 8,
-    GLX_BLUE_SIZE, 8,
-    GLX_ALPHA_SIZE, 8,
-    GLX_DEPTH_SIZE, 24,
-    GLX_STENCIL_SIZE, 8,
-    GLX_DOUBLEBUFFER, True 
-  });
+  bool result = true;
+  for (auto window : windows_) {
+    result &= window->open(display_);
+  }
 
-  visual_attribs.push_back(None);
-  return true;
+  return result;
 }
 
 bool X11GL::step() {
+  for (auto window : windows_) {
+    window->update();
+  }
   return true;
+}
+
+X11GL::~X11GL() {
+  for (auto window : windows_) {
+    delete window;
+  }
+  windows_.clear();
+  XCloseDisplay(display_);
 }
 
 } // namespace x11

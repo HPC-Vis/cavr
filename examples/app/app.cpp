@@ -4,6 +4,7 @@
 void update() {
   static int i = 0;
   LOG(INFO) << i++;
+  sleep(1);
   if (i >= 10) {
     cavr::System::shutdown();
     return;

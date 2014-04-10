@@ -2,6 +2,8 @@
 #include <cavr/plugin.h>
 #include <cavr/math/vector.h>
 #include <cavr/input/marker.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 
@@ -9,7 +11,10 @@ namespace x11 {
 
 class Window {
 public:
+  Window();
   bool open(::Display* display);
+  void update();
+  ~Window();
   static Window* configure(cavr::config::Configuration& config);
 protected:
   double near_;
@@ -20,6 +25,12 @@ protected:
   unsigned int y_position_;
   bool fullscreen_;
   std::string input_name_;
+
+  ::Colormap colormap_;
+  ::Window glx_window_;
+  ::GLXContext context_;
+  ::Display* display_;
+  void* context_data_;
 };
 
 class PerspectiveWindow : public Window {
