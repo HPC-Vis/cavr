@@ -17,6 +17,12 @@ typedef std::vector<std::string> strvec;
 
 System::Data System::data_;
 
+#if __GNUC__
+__thread void* System::context_data_;
+#else
+void* System::context_data_;
+#endif
+
 bool System::init(int argc,
                   char** argv,
                   input::InputMap* input_map) {
@@ -229,11 +235,11 @@ bool System::init(int argc,
     LOG(ERROR) << "Failed to setup network.";
     return false;
   }
-  if (!input::initialize(input_map,
-                         data_.sync_socket,
-                         data_.pubsub_socket,
-                         data_.master,
-                         data_.num_machines)) {
+  if (!input::InputManager::initialize(input_map,
+                                       data_.sync_socket,
+                                       data_.pubsub_socket,
+                                       data_.master,
+                                       data_.num_machines)) {
     LOG(ERROR) << "Failed to initialize inputs.";
     return false;
   }
@@ -258,6 +264,10 @@ void System::run() {
   auto update_function = getCallback("update");
   auto update_thread = [=]() {
     while (!System::terminated()) {
+      if (!input::InputManager::sync()) {
+        LOG(ERROR) << "Failed to sync InputManager";
+        return;
+      }
       update_function();
     }
   };
@@ -276,6 +286,15 @@ void System::run() {
   for (auto& thread : data_.threads) {
     thread.join();
   }
+  
+  cleanup();
+}
+
+bool System::cleanup() {
+  for (auto it : data_.plugins) {
+    delete it.second;
+  }
+  data_.plugins.clear();
 }
 
 void System::shutdown() {
@@ -284,6 +303,14 @@ void System::shutdown() {
 
 bool System::terminated() {
   return data_.terminated;
+}
+
+void* System::getContextData() {
+  return context_data_;
+}
+
+void System::setContextData(void* data) {
+  context_data_ = data;
 }
 
 } // namespace cavr

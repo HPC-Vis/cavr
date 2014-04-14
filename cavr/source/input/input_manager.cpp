@@ -5,11 +5,13 @@ namespace cavr {
 
 namespace input {
 
+InputManager::Data InputManager::data_;
+
 ManagedInput<Button> getButton;
 ManagedInput<Analog> getAnalog;
 ManagedInput<SixDOF> getSixDOF;
 
-bool reset() {
+bool InputManager::reset() {
   bool result = true;
   result &= getButton.reset();
   result &= getAnalog.reset();
@@ -17,11 +19,15 @@ bool reset() {
   return result;
 }
 
-bool initialize(const InputMap* input_map,
-                com::Socket* sync_socket,
-                com::Socket* pub_socket,
-                bool master,
-                int num_machines) {
+bool InputManager::initialize(const InputMap* input_map,
+                              com::Socket* sync_socket,
+                              com::Socket* pub_socket,
+                              bool master,
+                              int num_machines) {
+  data_.sync_socket = sync_socket;
+  data_.pub_socket = pub_socket;
+  data_.master = master;
+  data_.num_machines = num_machines;
   bool result = true;
   if (input_map) {
     for (const auto it : input_map->button_map) {
@@ -108,6 +114,82 @@ bool initialize(const InputMap* input_map,
     add_device_inputs(di);
   }
   // at this point, all maps should be exactly the same
+  std::vector<std::string> button_names = getButton.deviceNames();
+  for (auto n : button_names) {
+    data_.buttons.push_back(getButton.byDeviceName(n));
+  }
+  std::vector<std::string> analog_names = getAnalog.deviceNames();
+  for (auto n : analog_names) {
+    data_.analogs.push_back(getAnalog.byDeviceName(n));
+  }
+  std::vector<std::string> sixdof_names = getSixDOF.deviceNames();
+  for (auto n : sixdof_names) {
+    data_.sixdofs.push_back(getSixDOF.byDeviceName(n));
+  }
+  return true;
+}
+
+bool InputManager::sync() {
+  if (data_.master) {
+    for (int i = 0; i < data_.num_machines - 1; ++i) {
+      std::string sync_packet;
+      if (!data_.sync_socket->recv(sync_packet)) {
+        LOG(ERROR) << "Failed to recv sync";
+        return false;
+      }
+    }
+  } else {
+    std::string sync_packet;
+    if (!data_.sync_socket->send(sync_packet)) {
+      LOG(ERROR) << "Failed to send sync";
+      return false;
+    }
+  }
+
+  com::DeviceSync device_sync;
+  if (data_.master) {
+    for (auto button : data_.buttons) {
+      button->sync();
+      device_sync.add_buttons(button->pressed());
+    }
+    for (auto analog : data_.analogs) {
+      analog->sync();
+      device_sync.add_analogs(analog->getValue());
+    }
+    for (auto sixdof : data_.sixdofs) {
+      sixdof->sync();
+      const auto& m = sixdof->getMatrix();
+      for (int i = 0; i < 16; ++i) {
+        device_sync.add_sixdofs(m.v[i]);
+      }
+    }
+    std::string packet;
+    device_sync.SerializeToString(&packet);
+    if (!data_.pub_socket->send(packet)) {
+      LOG(ERROR) << "Failed to publish device sync";
+      return false;
+    }
+  } else {
+    std::string packet;
+    if (!data_.pub_socket->recv(packet)) {
+      LOG(ERROR) << "Failed to receive device sync";
+      return false;
+    }
+    device_sync.ParseFromString(packet);
+    for (int i = 0; i < device_sync.buttons_size(); ++i) {
+      data_.buttons[i]->syncState(device_sync.buttons(i));
+    }
+    for (int i = 0; i < device_sync.analogs_size(); ++i) {
+      data_.analogs[i]->syncState(device_sync.analogs(i));
+    }
+    for (int i = 0; i < device_sync.sixdofs_size() / 16; ++i) {
+      math::mat4d m;
+      int k = i * 16;
+      for (int j = 0; j < 16; ++j) {
+        m.v[j] = device_sync.sixdofs(k + j);
+      }
+    }
+  }
   return true;
 }
 

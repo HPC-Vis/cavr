@@ -13,6 +13,7 @@ public:
   double getValue() const;
   void setValue(double value);
   void sync();
+  void syncState(double value);
 private:
   double value_;
   double live_value_;

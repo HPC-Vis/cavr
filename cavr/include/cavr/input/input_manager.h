@@ -47,15 +47,23 @@ public:
     return t;
   }
 
-  T* byDeviceName(const std::string& name) {
+  T* byDeviceNameOrNull(const std::string& name) {
     auto result = by_device_name_.find(name);
     if (by_device_name_.end() == result) {
+      return nullptr;
+    }
+    return result->second;
+  }
+
+  T* byDeviceName(const std::string& name) {
+    T* result = byDeviceNameOrNull(name);
+    if (!result) {
       LOG(WARNING) << "Could not find " << T::type_name <<
         " with device name " << name;
       LOG(WARNING) << "Using dummy " << T::type_name;
       return &dummy_;
     }
-    return result->second;
+    return result;
   }
 
   T* byDeviceNameOrCreate(const std::string& name) {
@@ -107,12 +115,28 @@ extern ManagedInput<Button> getButton;
 extern ManagedInput<Switch> getSwitch;
 extern ManagedInput<Analog> getAnalog;
 extern ManagedInput<SixDOF> getSixDOF;
-bool reset();
-bool initialize(const InputMap* input_map,
-                com::Socket* sync_socket,
-                com::Socket* pub_socket,
-                bool master,
-                int num_machines);
+
+class InputManager {
+public:
+  static bool reset();
+  static bool initialize(const InputMap* input_map,
+                         com::Socket* sync_socket,
+                         com::Socket* pub_socket,
+                         bool master,
+                         int num_machines);
+  static bool sync();
+private:
+  struct Data {
+    com::Socket* sync_socket;
+    com::Socket* pub_socket;
+    bool master;
+    int num_machines;
+    std::vector<Button*> buttons;
+    std::vector<Analog*> analogs;
+    std::vector<SixDOF*> sixdofs;
+  };
+  static Data data_;
+};
 
 } // namespace input
 

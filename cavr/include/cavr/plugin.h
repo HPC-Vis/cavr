@@ -8,6 +8,7 @@ class Plugin {
 public:
   virtual bool step() = 0;
   virtual bool init(config::Configuration& config) = 0;
+  virtual ~Plugin();
 private:
 };
 

@@ -12,39 +12,78 @@ SixDOF::SixDOF()
 }
 
 math::vec3d SixDOF::getPosition() const {
-  return state_[3].xyz;
+  sync_lock_.readLock();
+  math::vec3d result = state_[3].xyz;
+  sync_lock_.readUnlock();
+  return result;
 }
 
 math::vec3d SixDOF::getForward() const {
-  return -state_[2].xyz;
+  sync_lock_.readLock();
+  math::vec3d result = -state_[2].xyz;
+  sync_lock_.readUnlock();
+  return result;
 }
 
 math::vec3d SixDOF::getBackward() const {
-  return state_[2].xyz;
+  sync_lock_.readLock();
+  math::vec3d result = state_[2].xyz;
+  sync_lock_.readUnlock();
+  return result;
 }
 
 math::vec3d SixDOF::getLeft() const {
-  return -state_[0].xyz;
+  sync_lock_.readLock();
+  math::vec3d result = -state_[0].xyz;
+  sync_lock_.readUnlock();
+  return result;
 }
 
 math::vec3d SixDOF::getRight() const {
-  return state_[0].xyz;
+  sync_lock_.readLock();
+  math::vec3d result = state_[0].xyz;
+  sync_lock_.readUnlock();
+  return result;
 }
 
 math::vec3d SixDOF::getUp() const {
-  return state_[1].xyz;
+  sync_lock_.readLock();
+  math::vec3d result = state_[1].xyz;
+  sync_lock_.readUnlock();
+  return result;
 }
 
 math::vec3d SixDOF::getDown() const {
-  return -state_[1].xyz;
+  sync_lock_.readLock();
+  math::vec3d result = -state_[1].xyz;
+  sync_lock_.readUnlock();
+  return result;
 }
 
-const math::mat4d& SixDOF::getMatrix() const {
-  return state_;
+math::mat4d SixDOF::getMatrix() const {
+  sync_lock_.readLock();
+  math::mat4d m = state_;
+  sync_lock_.readUnlock();
+  return m;
 }
 
 void SixDOF::setState(const math::mat4d& m) {
+  live_lock_.writeLock();
+  live_state_ = m;
+  live_lock_.writeUnlock();
+}
+
+void SixDOF::syncState(const math::mat4d& m) {
+  sync_lock_.writeLock();
   state_ = m;
+  sync_lock_.writeUnlock();
+}
+
+void SixDOF::sync() {
+  live_lock_.readLock();
+  math::mat4d m = live_state_;
+  live_lock_.readUnlock();
+  syncState(m);
 }
 
 } // namespace input

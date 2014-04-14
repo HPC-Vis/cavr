@@ -25,6 +25,7 @@ TEST(sixdof, sixdof) {
                                autovec(4, 5, 6),
                                autovec(0, 1, 0)).inverted();
   s.setState(new_state);
+  s.sync();
   m = s.getMatrix();
   EXPECT_EQ(new_state[0], m[0]);
   EXPECT_EQ(new_state[1], m[1]);

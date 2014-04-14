@@ -27,10 +27,15 @@ void Analog::setValue(double value) {
 }
 
 void Analog::sync() {
-  sync_lock_.writeLock();
   live_lock_.readLock();
-  value_ = live_value_;
+  double value = live_value_;
   live_lock_.readUnlock();
+  syncState(value);
+}
+
+void Analog::syncState(double value) {
+  sync_lock_.writeLock();
+  value_ = value;
   sync_lock_.writeUnlock();
 }
 

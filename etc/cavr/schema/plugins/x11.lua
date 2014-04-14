@@ -14,7 +14,7 @@ stereo_eyes = {
     type = "string";
     description = "type of stereoscopy to use";
   }; -- stereo
-}; --active_stereo_eyes
+}; --stereo_eyes
 
 mono_eyes = {
   eye = {
@@ -109,12 +109,12 @@ x11_window = {
       simulator_view = simulator_view;
     }; -- possibilities
   }; -- view
-  input_name = {
+  render_callback = {
     required = false;
     type = "string";
-    description = "base name for all inputs collected from these windows";
-    default = "keyboard";
-  }; -- input_name
+    default = "gl_render";
+    description = "callback used to render GL graphics";
+  }; -- render_callback
 }; -- x11_window
 
 x11 = {
@@ -129,4 +129,28 @@ x11 = {
     type = "list"; 
     subtype = x11_window; 
   }; -- windows
+  init_callback = {
+    required = false;
+    type = "string";
+    default = "init_gl_context";
+    description = "callback used to initialize GL data";
+  }; -- init_callback
+  update_callback = {
+    required = false;
+    type = "string";
+    default = "update_gl_context";
+    description = "callback used to update GL data (not render)";
+  }; -- update_callback
+  destruct_callback = {
+    required = false;
+    type = "string";
+    default = "destruct_gl_context";
+    description = "callback used to destroy GL data";
+  }; -- destruct_callback
+  input_name = {
+    required = false;
+    type = "string";
+    description = "base name for all inputs collected from these windows";
+    default = "keyboard";
+  }; -- input_name
 }; -- x11

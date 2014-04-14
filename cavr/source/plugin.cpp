@@ -3,6 +3,9 @@
 
 namespace cavr {
 
+Plugin::~Plugin() {
+}
+
 PluginGeneratorBase::PluginGeneratorBase()
   : handle_(nullptr) {
 }

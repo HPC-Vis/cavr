@@ -1,4 +1,5 @@
 #include <cavr/input/button.h>
+#include <glog/logging.h>
 
 namespace cavr {
 
@@ -32,20 +33,26 @@ void Button::setState(bool is_pressed) {
   sync_lock_.writeUnlock();
 }
 
-void Button::sync() {
-  live_lock_.readLock();
+void Button::syncState(bool is_pressed) {
   sync_lock_.writeLock();
-  if (live_value_ && value_) {
+  if (is_pressed && value_) {
     delta_ = Held;
-  } else if (live_value_ && !value_) {
+  } else if (is_pressed && !value_) {
     delta_ = Pressed;
-  } else if (!live_value_ && value_) {
+  } else if (!is_pressed && value_) {
     delta_ = Released;
   } else {
     delta_ = Open;
   }
+  value_ = is_pressed;
   sync_lock_.writeUnlock();
+}
+
+void Button::sync() {
+  live_lock_.readLock();
+  bool is_pressed = live_value_;
   live_lock_.readUnlock();
+  syncState(is_pressed);
 }
 
 } // namespace input

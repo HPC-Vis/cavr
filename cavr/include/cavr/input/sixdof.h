@@ -1,4 +1,5 @@
 #pragma once
+#include <cavr/lock.h>
 #include <cavr/input/input.h>
 #include <cavr/math/matrix.h>
 #include <cavr/math/vector.h>
@@ -18,10 +19,15 @@ public:
   math::vec3d getRight() const;
   math::vec3d getUp() const;
   math::vec3d getDown() const;
-  const math::mat4d& getMatrix() const;
+  math::mat4d getMatrix() const;
   void setState(const math::mat4d& m);
+  void syncState(const math::mat4d& m);
+  void sync();
 private:
+  mutable cavr::Lock sync_lock_;
+  mutable cavr::Lock live_lock_;
   math::mat4d state_;
+  math::mat4d live_state_;
 };
 
 } // namespace input

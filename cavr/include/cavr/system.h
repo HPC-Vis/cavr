@@ -27,6 +27,9 @@ public:
   static void run();
   static void shutdown();
   static bool terminated();
+  static void* getContextData();
+  static void setContextData(void* data);
+  static bool cleanup();
 private:
   struct Data {
     std::map<std::string, std::function<void()>> callbacks;
@@ -42,6 +45,11 @@ private:
     com::Socket* pubsub_socket;
   };
   static Data data_;
+#if __GNUC__
+  static __thread void* context_data_;
+#else
+  thread_local static void* context_data_;
+#endif
 };
 
 } // namespace cavr

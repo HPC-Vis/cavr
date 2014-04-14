@@ -19,6 +19,7 @@ public:
   bool pressed() const;
   Delta delta() const;
   void setState(bool is_pressed);
+  void syncState(bool is_pressed);
   void sync();
 private:
   mutable cavr::Lock sync_lock_;
