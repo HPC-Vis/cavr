@@ -56,6 +56,10 @@ transform& transform::operator/=(double v) {
   return *this;
 }
 
+sixdof_marker transform::operator*(const sixdof_marker& s) const {
+  return sixdof_marker(*this * s.pretransform(), s.name(), s.posttransform());
+}
+
 struct math::matrix::mat<double, 4, 4>* transform::matrix() {
   return matrix_;
 }
@@ -91,17 +95,10 @@ transform scale(double x, double y, double z) {
   return transform(m);
 }
 
-transform operator*(double v, const transform& t) {
-  mat4d m = v * *(t.matrix());
-  return transform(m);
-}
-
 sixdof_marker::sixdof_marker(const std::string& name)
   : pre_(identity()),
     post_(identity()),
     name_(name) {
-  // Instantiates the sixDOF if it wasn't already created
-  input::getSixDOF.byAliasOrCreate(name);
 }
 
 sixdof_marker::sixdof_marker(const transform& pre,
@@ -124,16 +121,12 @@ const transform& sixdof_marker::posttransform() const {
   return post_;
 }
 
+sixdof_marker sixdof_marker::operator*(const transform& t) const {
+  return sixdof_marker(pre_, name_, post_ * t);
+}
+
 sixdof_marker sixdof(const std::string& name) {
   return sixdof_marker(name);
-}
-
-sixdof_marker operator*(const transform& t, const sixdof_marker& r) {
-  return sixdof_marker(t * r.pretransform(), r.name(), r.posttransform());
-}
-
-sixdof_marker operator*(const sixdof_marker& r, const transform& t) {
-  return sixdof_marker(r.pretransform(), r.name(), r.posttransform() * t);
 }
 
 vec::vec(const math::vector::vec<double, 3>& v)

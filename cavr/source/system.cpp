@@ -32,6 +32,10 @@ bool System::init(int argc,
   com::Communications::initialize();
   data_.terminated = false;
 
+  if (!input::InputManager::mapInputs(input_map)) {
+    LOG(ERROR) << "Failed to map inputs";
+    return false;
+  }
   // Get paths where the config files might exist
   strvec config_paths = util::Paths::getConfigPaths();
 
@@ -235,8 +239,7 @@ bool System::init(int argc,
     LOG(ERROR) << "Failed to setup network.";
     return false;
   }
-  if (!input::InputManager::initialize(input_map,
-                                       data_.sync_socket,
+  if (!input::InputManager::initialize(data_.sync_socket,
                                        data_.pubsub_socket,
                                        data_.master,
                                        data_.num_machines)) {

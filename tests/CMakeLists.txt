@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(
     ${gtest_SOURCE_DIR}/include
     ${cavr_SOURCE_DIR}/include
     ${LUA_INCLUDE_DIR}
+    ${CAVR_INCLUDES}
 )
 SET(test_sources
     "cavr/config/config_test.cpp"

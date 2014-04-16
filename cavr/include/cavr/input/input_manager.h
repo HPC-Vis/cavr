@@ -36,17 +36,6 @@ public:
     return result->second;
   }
 
-  T* byAliasOrCreate(const std::string& name) {
-    auto result = by_alias_.find(name);
-    if (by_alias_.end() != result) {
-      return result->second;
-    }
-    T* t = new T();
-    t->setName(name);
-    by_alias_[name] = t;
-    return t;
-  }
-
   T* byDeviceNameOrNull(const std::string& name) {
     auto result = by_device_name_.find(name);
     if (by_device_name_.end() == result) {
@@ -72,6 +61,7 @@ public:
       return result->second;
     }
     T* t = new T();
+    t->setName(name);
     by_device_name_[name] = t;
     return t;
   }
@@ -112,15 +102,14 @@ private:
 };
 
 extern ManagedInput<Button> getButton;
-extern ManagedInput<Switch> getSwitch;
 extern ManagedInput<Analog> getAnalog;
 extern ManagedInput<SixDOF> getSixDOF;
 
 class InputManager {
 public:
   static bool reset();
-  static bool initialize(const InputMap* input_map,
-                         com::Socket* sync_socket,
+  static bool mapInputs(const InputMap* input_map);
+  static bool initialize(com::Socket* sync_socket,
                          com::Socket* pub_socket,
                          bool master,
                          int num_machines);

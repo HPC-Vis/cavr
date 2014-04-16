@@ -19,15 +19,7 @@ bool InputManager::reset() {
   return result;
 }
 
-bool InputManager::initialize(const InputMap* input_map,
-                              com::Socket* sync_socket,
-                              com::Socket* pub_socket,
-                              bool master,
-                              int num_machines) {
-  data_.sync_socket = sync_socket;
-  data_.pub_socket = pub_socket;
-  data_.master = master;
-  data_.num_machines = num_machines;
+bool InputManager::mapInputs(const InputMap* input_map) {
   bool result = true;
   if (input_map) {
     for (const auto it : input_map->button_map) {
@@ -44,6 +36,18 @@ bool InputManager::initialize(const InputMap* input_map,
     LOG(ERROR) << "An error occurred mapping inputs";
     return false;
   }
+  return result;
+}
+
+bool InputManager::initialize(com::Socket* sync_socket,
+                              com::Socket* pub_socket,
+                              bool master,
+                              int num_machines) {
+  data_.sync_socket = sync_socket;
+  data_.pub_socket = pub_socket;
+  data_.master = master;
+  data_.num_machines = num_machines;
+  bool result = true;
   auto add_device_inputs = [=](com::DeviceInputs& di) {
     for (int j = 0; j < di.buttons_size(); ++j) {
       input::getButton.byDeviceNameOrCreate(di.buttons(j));

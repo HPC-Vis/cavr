@@ -8,6 +8,9 @@ namespace cavr {
 
 namespace config {
 
+class transform;
+class sixdof_marker;
+
 class transform {
 public:
   transform();
@@ -22,6 +25,7 @@ public:
   transform& operator*=(double v);
   transform operator/(double v) const;
   transform& operator/=(double v);
+  sixdof_marker operator*(const sixdof_marker& s) const;
 #ifndef SWIG
   struct math::matrix::mat<double, 4, 4>* matrix();
   const struct math::matrix::mat<double, 4, 4>* matrix() const;
@@ -35,7 +39,6 @@ transform identity();
 transform translate(double x, double y, double z);
 transform rotate(double radians, double x, double y, double z);
 transform scale(double x, double y, double z);
-transform operator*(double v, const transform& t);
 
 class sixdof_marker {
 public:
@@ -46,6 +49,7 @@ public:
   const std::string& name() const;
   const transform& pretransform() const;
   const transform& posttransform() const;
+  sixdof_marker operator*(const transform& t) const;
 private:
   std::string name_;
   transform pre_;
@@ -53,8 +57,6 @@ private:
 };
 
 sixdof_marker sixdof(const std::string& name);
-sixdof_marker operator*(const transform& t, const sixdof_marker& r);
-sixdof_marker operator*(const sixdof_marker& r, const transform& t);
 
 class vec {
 public:

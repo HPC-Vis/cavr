@@ -8,7 +8,8 @@ namespace input {
 const std::string SixDOF::type_name("SixDOF");
 
 SixDOF::SixDOF() 
-  : state_(1.0) {
+  : state_(1.0),
+    live_state_(1.0) {
 }
 
 math::vec3d SixDOF::getPosition() const {

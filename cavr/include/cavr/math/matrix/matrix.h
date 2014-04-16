@@ -75,6 +75,14 @@ struct homogeneous_matrix<T, M, true> {
     return result;
   }
 
+  static inline M scale(const T& s) {
+    M result(1);
+    result[0][0] = s;
+    result[1][1] = s;
+    result[2][2] = s;
+    return result;
+  }
+
   template<typename R,
            typename... U,
            typename =
@@ -164,6 +172,23 @@ struct homogeneous_matrix<T, M, true> {
              0, 2.0 / dy, 0, 0, // col 1
              0, 0, -2.0 / dz, 0, // col 2,
              tx, ty, tz, 1); // col 3
+    return result;
+  }
+
+  static inline M frustum(double left,
+                          double right,
+                          double bottom,
+                          double top,
+                          double near,
+                          double far) {
+    M result(0);
+    result[0][0] = 2.0 * near / (right - left);
+    result[1][1] = 2.0 * near / (top - bottom);
+    result[2][0] = (right + left) / (right - left);
+    result[2][1] = (top + bottom) / (top - bottom);
+    result[2][2] = -(far + near) / (far - near);
+    result[2][3] = -1;
+    result[3][2] = -2.0 * far * near / (far - near);
     return result;
   }
 

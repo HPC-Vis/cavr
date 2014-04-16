@@ -10,12 +10,24 @@ sim_window = {
   };
 };
 
+perspective_window = {
+  view = {
+    eyes = {
+      eye = cavr.sixdof("emulated");
+    };
+    lower_left = cavr.sixdof("emulated") * cavr.translate(-1, -1, -1);
+    lower_right = cavr.sixdof("emulated") * cavr.translate(1, -1, -1);
+    upper_left = cavr.sixdof("emulated") * cavr.translate(-1, 1, -1);
+  };
+};
+
 x11_renderer = {
   type = "x11gl";
   display = ":0.0";
   windows = {
     sim_window = sim_window;
     sim_window2 = sim_window;
+    perspective_window = perspective_window;
   };
 };
 

@@ -151,7 +151,6 @@ bool LuaState::readValue(config::transform& value) {
 
 bool LuaState::readValue(input::Marker*& marker) {
   config::vec* v = nullptr;
-  LOG(INFO) << "MARKER";
   if (SWIG_IsOK(SWIG_ConvertPtr(L_, -1, (void**)&v, vector_type_info_, 0))) {
     marker = new input::StaticMarker(*(v->vector()));
     return true;
@@ -159,10 +158,11 @@ bool LuaState::readValue(input::Marker*& marker) {
   config::sixdof_marker* s = nullptr;
   if (SWIG_IsOK(SWIG_ConvertPtr(L_, 
                                 -1, 
-                                (void**)&v, 
+                                (void**)&s, 
                                 sixdof_marker_type_info_, 
                                 0))) {
-    const input::SixDOF* sixdof = input::getSixDOF(s->name());
+    const input::SixDOF* sixdof =
+      input::getSixDOF.byDeviceNameOrCreate(s->name());
     if (nullptr == sixdof) {
       LOG(ERROR) << "Could not find SixDOF " << s->name() << " for marker.";
       return false;

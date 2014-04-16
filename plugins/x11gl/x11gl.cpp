@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include "x11gl.h"
 #include <cavr/system.h>
 using namespace cavr;
@@ -219,6 +220,7 @@ bool X11GL::init(cavr::config::Configuration& config) {
 
   if (!mono_windows_.empty()) {
     mono_windows_[0]->makeCurrent();
+    glewInit();
     cavr::System::setContextData(nullptr);
     cavr::System::getCallback(config.get<std::string>("init_callback"))();
     mono_context_data_ = cavr::System::getContextData();
@@ -230,6 +232,27 @@ bool X11GL::init(cavr::config::Configuration& config) {
     cavr::System::getCallback(config.get<std::string>("init_callback"))();
     stereo_context_data_ = cavr::System::getContextData();
     glXMakeContextCurrent(display_, None, None, None);
+  }
+
+  for (auto it : window_map_) {
+    it.second->makeCurrent();
+    if (!it.second->setupRenderData()) {
+      LOG(ERROR) << "Failed to setup render data";
+      result = false;
+    }
+  }
+  glXMakeContextCurrent(display_, None, None, None);
+
+  std::vector<cavr::input::Analog*> analogs(6);
+  using cavr::input::getAnalog;
+  analogs[0] = getAnalog.byDeviceNameOrNull(input_name_ + "[analog[x0]]");
+  analogs[1] = getAnalog.byDeviceNameOrNull(input_name_ + "[analog[y0]]");
+  analogs[2] = getAnalog.byDeviceNameOrNull(input_name_ + "[analog[x1]]");
+  analogs[3] = getAnalog.byDeviceNameOrNull(input_name_ + "[analog[y1]]");
+  analogs[4] = getAnalog.byDeviceNameOrNull(input_name_ + "[analog[x2]]");
+  analogs[5] = getAnalog.byDeviceNameOrNull(input_name_ + "[analog[y2]]");
+  for (auto it : window_map_) {
+    it.second->setAnalogs(analogs.data());
   }
 
   return result;
@@ -262,6 +285,17 @@ void X11GL::processEvents() {
     XEvent event;
     XNextEvent(display_, &event);
     switch (event.type) {
+      case ConfigureNotify:
+      {
+        auto configure_event = reinterpret_cast<XConfigureEvent*>(&event);
+        Window* window = window_map_[configure_event->window];
+        if (!window) {
+          break;
+        }
+        window->setPosition(configure_event->x, configure_event->y);
+        window->setResolution(configure_event->width, configure_event->height);
+      }
+      break;
       case KeyPress:
       case KeyRelease: 
       {
@@ -283,6 +317,71 @@ void X11GL::processEvents() {
         }
         ::Window x_window = key_event->window;
         window_map_[x_window]->pressKey(lowercase_key_sym);
+      }
+      break;
+      case MotionNotify:
+      {
+        auto motion_event = reinterpret_cast<XMotionEvent*>(&event);
+        Window* window = window_map_[motion_event->window];
+        if (!window) {
+          break;
+        }
+        int x = motion_event->x;
+        int y = motion_event->y;
+        window->mouseMove(motion_event->state & ShiftMask, x, y);
+      }
+      case ButtonPress:
+      {
+        auto press_event = reinterpret_cast<XButtonPressedEvent*>(&event);
+        Window* window = window_map_[press_event->window];
+        if (!window) {
+          break;
+        }
+        int x = press_event->x;
+        int y = press_event->y;
+        switch (press_event->button) {
+          case 1:
+            window->leftClick(true, press_event->state & ShiftMask, x, y);
+            break;
+          case 2:
+            window->middleClick(true, press_event->state & ShiftMask, x, y);
+            break;
+          case 3:
+            window->rightClick(true, press_event->state & ShiftMask, x, y);
+            break;
+          case 4:
+            window->scrollUp();
+            break;
+          case 5:
+            window->scrollDown();
+            break;
+          default:
+            break;
+        }
+      }
+      break;
+      case ButtonRelease:
+      {
+        auto release_event = reinterpret_cast<XButtonReleasedEvent*>(&event);
+        Window* window = window_map_[release_event->window];
+        if (!window) {
+          break;
+        }
+        int x = release_event->x;
+        int y = release_event->y;
+        switch (release_event->button) {
+          case 1:
+            window->leftClick(false, release_event->state & ShiftMask, x, y);
+            break;
+          case 2:
+            window->middleClick(false, release_event->state & ShiftMask, x, y);
+            break;
+          case 3:
+            window->rightClick(false, release_event->state & ShiftMask, x, y);
+            break;
+          default:
+            break;
+        }
       }
       break;
       default:

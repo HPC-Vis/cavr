@@ -70,12 +70,6 @@ TEST(transform, scalar_multiplication) {
   EXPECT_EQ(b[1], y.matrix()->columns[1]);
   EXPECT_EQ(b[2], y.matrix()->columns[2]);
   EXPECT_EQ(b[3], y.matrix()->columns[3]);
-  mat4d c = 99.2 * b;
-  transform z = 99.2 * y;
-  EXPECT_EQ(c[0], z.matrix()->columns[0]);
-  EXPECT_EQ(c[1], z.matrix()->columns[1]);
-  EXPECT_EQ(c[2], z.matrix()->columns[2]);
-  EXPECT_EQ(c[3], z.matrix()->columns[3]);
 }
 
 TEST(transform, division) {
