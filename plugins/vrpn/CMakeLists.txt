@@ -1,0 +1,26 @@
+PROJECT(cavr_vrpn)
+
+FIND_PACKAGE(VRPN REQUIRED)
+FIND_PACKAGE(QUAT REQUIRED)
+
+INCLUDE_DIRECTORIES(
+    ${CAVR_INCLUDES}
+    ${VRPN_INCLUDE_DIRS}
+    ${QUAT_INCLUDE_DIRS}
+)
+
+SET(vrpn_sources
+    "vrpn.cpp"
+)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
+ADD_LIBRARY(cavr_vrpn MODULE ${vrpn_sources})
+ADD_DEPENDENCIES(cavr_vrpn cavr)
+SET_TARGET_PROPERTIES(cavr_vrpn PROPERTIES LINKER_LANGUAGE CXX)
+INSTALL(TARGETS cavr_vrpn
+        LIBRARY DESTINATION "${CAVR_PLUGIN_PATH}")
+TARGET_LINK_LIBRARIES(cavr_vrpn 
+                      cavr 
+                      ${VRPN_LIBRARIES}
+                      ${QUAT_LIBRARIES}
+)

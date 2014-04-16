@@ -55,7 +55,11 @@ void render() {
   glUniformMatrix4fv(cd->view_uniform, 1, GL_FALSE, cavr::gfx::getView().v);
   auto model = mat4f::translate(0, 1, 0) * mat4f::scale(0.1);
   glUniformMatrix4fv(cd->model_uniform, 1, GL_FALSE, model.v);
-  glUniform3f(cd->color_uniform, 1, 0, 0);
+  if (cavr::input::getButton("color")->delta() == cavr::input::Button::Held) {
+    glUniform3f(cd->color_uniform, 0, 0, 1);
+  } else {
+    glUniform3f(cd->color_uniform, 1, 0, 0);
+  }
   glDrawArrays(GL_TRIANGLES, 0, cd->num_triangles_in_sphere);
   glBindVertexArray(0);
   cd->simple_program->end();
@@ -82,7 +86,9 @@ int main(int argc, char** argv) {
   cavr::System::setCallback("destruct_gl_context", destructContext);
   cavr::input::InputMap input_map;
   input_map.button_map["exit"] = "keyboard[Escape]";
-  input_map.sixdof_map["wand"] = "emulated_wand";
+  input_map.button_map["color"] = "vrpn[Button0[0]]";
+  //input_map.sixdof_map["wand"] = "emulated_wand";
+  input_map.sixdof_map["wand"] = "vrpn[Tracker0[0]]";
   input_map.analog_map["rotation"] = "keyboard[analog[y0]]";
   if (!cavr::System::init(argc, argv, &input_map)) {
     LOG(ERROR) << "Failed to initialize cavr.";
