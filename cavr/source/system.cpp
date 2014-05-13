@@ -265,11 +265,20 @@ std::function<void()> System::getCallback(const std::string& name) {
 
 void System::run() {
   auto update_function = getCallback("update");
+  bool master = data_.master;
+  auto pubsub_function = getCallback(master? "publish_data" : "receive_data");
   auto update_thread = [=]() {
     while (!System::terminated()) {
+      if (master) {
+        input::InputManager::setSyncData("");
+        pubsub_function();
+      }
       if (!input::InputManager::sync()) {
         LOG(ERROR) << "Failed to sync InputManager";
         return;
+      }
+      if (!master) {
+        pubsub_function();
       }
       update_function();
     }
@@ -303,6 +312,15 @@ bool System::cleanup() {
 double System::dt() {
   return input::InputManager::dt();
 }
+
+void System::setSyncData(const std::string& data) {
+  input::InputManager::setSyncData(data);
+}
+
+const std::string& System::getSyncData() {
+  return input::InputManager::getSyncData();
+}
+
 
 void System::shutdown() {
   data_.terminated = true;

@@ -158,7 +158,9 @@ bool InputManager::sync() {
     data_.last_time = current_time;
     data_.dt = dt.count();
     device_sync.set_dt(data_.dt);
-
+    if (data_.master) {
+      device_sync.set_user_data(data_.sync_data);
+    }
     for (auto button : data_.buttons) {
       button->sync();
       device_sync.add_buttons(button->pressed());
@@ -188,6 +190,7 @@ bool InputManager::sync() {
     }
     device_sync.ParseFromString(packet);
     data_.dt = device_sync.dt();
+    data_.sync_data = device_sync.user_data();
     for (int i = 0; i < device_sync.buttons_size(); ++i) {
       data_.buttons[i]->syncState(device_sync.buttons(i));
     }
@@ -208,6 +211,16 @@ bool InputManager::sync() {
 double InputManager::dt() {
   return data_.dt;
 }
+
+
+void InputManager::setSyncData(const std::string& data) {
+  data_.sync_data = data;
+}
+
+const std::string& InputManager::getSyncData() {
+  return data_.sync_data;
+}
+
 
 } // namespace input
 

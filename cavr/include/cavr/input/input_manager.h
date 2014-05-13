@@ -116,6 +116,8 @@ public:
                          int num_machines);
   static bool sync();
   static double dt();
+  static void setSyncData(const std::string& data);
+  static const std::string& getSyncData();
 private:
   struct Data {
     com::Socket* sync_socket;
@@ -127,6 +129,7 @@ private:
     std::vector<SixDOF*> sixdofs;
     double dt;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_time;
+    std::string sync_data;
   };
   static Data data_;
 };

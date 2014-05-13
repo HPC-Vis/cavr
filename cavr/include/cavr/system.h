@@ -31,6 +31,8 @@ public:
   static void setContextData(void* data);
   static bool cleanup();
   static double dt();
+  static void setSyncData(const std::string& data);
+  static const std::string& getSyncData();
 private:
   struct Data {
     std::map<std::string, std::function<void()>> callbacks;
