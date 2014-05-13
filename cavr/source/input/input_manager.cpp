@@ -130,6 +130,7 @@ bool InputManager::initialize(com::Socket* sync_socket,
   for (auto n : sixdof_names) {
     data_.sixdofs.push_back(getSixDOF.byDeviceName(n));
   }
+  data_.last_time = std::chrono::high_resolution_clock::now();
   return true;
 }
 
@@ -152,6 +153,12 @@ bool InputManager::sync() {
 
   com::DeviceSync device_sync;
   if (data_.master) {
+    auto current_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> dt = current_time - data_.last_time;
+    data_.last_time = current_time;
+    data_.dt = dt.count();
+    device_sync.set_dt(data_.dt);
+
     for (auto button : data_.buttons) {
       button->sync();
       device_sync.add_buttons(button->pressed());
@@ -180,6 +187,7 @@ bool InputManager::sync() {
       return false;
     }
     device_sync.ParseFromString(packet);
+    data_.dt = device_sync.dt();
     for (int i = 0; i < device_sync.buttons_size(); ++i) {
       data_.buttons[i]->syncState(device_sync.buttons(i));
     }
@@ -195,6 +203,10 @@ bool InputManager::sync() {
     }
   }
   return true;
+}
+
+double InputManager::dt() {
+  return data_.dt;
 }
 
 } // namespace input

@@ -30,6 +30,7 @@ public:
   static void* getContextData();
   static void setContextData(void* data);
   static bool cleanup();
+  static double dt();
 private:
   struct Data {
     std::map<std::string, std::function<void()>> callbacks;

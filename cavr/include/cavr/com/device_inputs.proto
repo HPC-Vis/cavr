@@ -10,4 +10,5 @@ message DeviceSync {
   repeated bool buttons = 1[packed=true];
   repeated double analogs = 2[packed=true];
   repeated double sixdofs = 3[packed=true];
+  required double dt = 4;
 };

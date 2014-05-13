@@ -7,6 +7,7 @@
 #include <cavr/input/switch.h>
 #include <glog/logging.h>
 
+#include <chrono>
 #include <map>
 #include <string>
 
@@ -114,6 +115,7 @@ public:
                          bool master,
                          int num_machines);
   static bool sync();
+  static double dt();
 private:
   struct Data {
     com::Socket* sync_socket;
@@ -123,6 +125,8 @@ private:
     std::vector<Button*> buttons;
     std::vector<Analog*> analogs;
     std::vector<SixDOF*> sixdofs;
+    double dt;
+    std::chrono::time_point<std::chrono::high_resolution_clock> last_time;
   };
   static Data data_;
 };

@@ -300,6 +300,10 @@ bool System::cleanup() {
   data_.plugins.clear();
 }
 
+double System::dt() {
+  return input::InputManager::dt();
+}
+
 void System::shutdown() {
   data_.terminated = true;
 }

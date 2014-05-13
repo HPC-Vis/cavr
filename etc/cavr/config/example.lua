@@ -49,7 +49,7 @@ self = {
   ssh = HOSTNAME;
   address = "tcp://" .. HOSTNAME .. ":8888";
   plugins = {
-    x11_renderer = x11_renderer;
+    --x11_renderer = x11_renderer;
     vrpn = vrpn;
   };
 };
