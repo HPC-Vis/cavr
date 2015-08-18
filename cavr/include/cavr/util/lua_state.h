@@ -2,12 +2,13 @@
 #include <cavr/config/config.h>
 #include <cavr/input/marker.h>
 #include <type_traits>
-
 #include <glog/logging.h>
+//#include <luaconf.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-
+#include <stddef.h>
+using namespace std;
 struct swig_type_info;
 
 namespace cavr {
