@@ -43,7 +43,7 @@ bool Socket::send(const std::string& data) {
     return false;
   }
   std::copy(data.begin(), data.end(), (char*)zmq_msg_data(&msg));
-  bool result = 0 == zmq_send(zmq_socket_, &msg, 0);
+  bool result = -1 != zmq_send(zmq_socket_, &msg, 0);
   if (!result) {
     LOG(ERROR) << "zmq_send failed";
   }
@@ -57,7 +57,7 @@ bool Socket::recv(std::string& data) {
     LOG(ERROR) << "Could not initialize ZMQ message";
     return false;
   }
-  bool result = 0 == zmq_recv(zmq_socket_, &msg, 0);
+  bool result = -1 != zmq_recv(zmq_socket_, &msg, 0);
   if (result) {
     data = std::string((char*)zmq_msg_data(&msg), zmq_msg_size(&msg));
   } else {

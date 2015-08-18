@@ -85,10 +85,10 @@ int main(int argc, char** argv) {
   cavr::System::setCallback("gl_render", render);
   cavr::System::setCallback("destruct_gl_context", destructContext);
   cavr::input::InputMap input_map;
-  input_map.button_map["exit"] = "keyboard[Escape]";
-  input_map.button_map["color"] = "vrpn[Button0[0]]";
+  //input_map.button_map["exit"] = "keyboard[Escape]";
+  //input_map.button_map["color"] = "vrpn[Button0[0]]";
   //input_map.sixdof_map["wand"] = "emulated_wand";
-  input_map.sixdof_map["wand"] = "vrpn[Tracker0[0]]";
+  //input_map.sixdof_map["wand"] = "vrpn[Tracker0[0]]";
   input_map.analog_map["rotation"] = "keyboard[analog[y0]]";
   if (!cavr::System::init(argc, argv, &input_map)) {
     LOG(ERROR) << "Failed to initialize cavr.";
