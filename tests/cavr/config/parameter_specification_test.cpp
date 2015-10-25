@@ -15,3 +15,15 @@ TEST(parameter_specification, parameter_specification) {
   EXPECT_EQ(qs->name(), "test");
   EXPECT_FALSE(qs->required());
 }
+
+TEST(parameter_specification_any_of,test)
+{
+  Parameter<double> ps("test", false);
+  EXPECT_EQ(ps.type(), ParameterType::kNumber);
+  EXPECT_EQ(ps.name(), "test");
+  EXPECT_FALSE(ps.required());
+  ParameterSpecification* qs = ps.copy();
+  EXPECT_EQ(qs->type(), ParameterType::kNumber);
+  EXPECT_EQ(qs->name(), "test");
+  EXPECT_FALSE(qs->required());
+}

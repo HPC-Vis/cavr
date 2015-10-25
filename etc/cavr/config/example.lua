@@ -35,21 +35,21 @@ vrpn = {
   type = "vrpn";
   input_name = "vrpn";
   buttons = {
-    "Button0@localhost";
+    --"Button0@localhost";
   };
   analogs = {
   };
   sixdofs = {
-    "Tracker0@localhost"
+    --"Tracker0@localhost"
   };
 };
 
 self = {
   hostname = HOSTNAME;
   ssh = HOSTNAME;
-  address = "tcp://" .. HOSTNAME .. ":8080";
+  address = "tcp://" .. HOSTNAME .. ":8888";
   plugins = {
-    --x11_renderer = x11_renderer;
+    x11_renderer = x11_renderer;
     vrpn = vrpn;
   };
 };
