@@ -53,7 +53,10 @@ void render() {
   cd->sphere_vao->bind();
   glUniformMatrix4fv(cd->projection_uniform, 1, GL_FALSE, cavr::gfx::getProjection().v);
   glUniformMatrix4fv(cd->view_uniform, 1, GL_FALSE, cavr::gfx::getView().v);
-  auto model = mat4f::translate(0, 1, 0) * mat4f::scale(0.1);
+
+  auto testor = cavr::input::getSixDOF("wand")->getPosition();
+  //LOG(ERROR) << testor;
+  auto model = mat4f::translate(testor.x, testor.y,testor.z) * mat4f::scale(0.1);
   glUniformMatrix4fv(cd->model_uniform, 1, GL_FALSE, model.v);
   if (cavr::input::getButton("color")->delta() == cavr::input::Button::Held) {
     glUniform3f(cd->color_uniform, 0, 0, 1);
@@ -77,6 +80,14 @@ void update() {
   }
 }
 
+void publish_data()
+{
+}
+
+void receive_data()
+{
+}
+
 int main(int argc, char** argv) {
   LOG(INFO) << "Setting callbacks.";
   cavr::System::setCallback("update", update);
@@ -84,14 +95,17 @@ int main(int argc, char** argv) {
   cavr::System::setCallback("update_gl_context", frame);
   cavr::System::setCallback("gl_render", render);
   cavr::System::setCallback("destruct_gl_context", destructContext);
+  cavr::System::setCallback("publish_data", publish_data);
+  cavr::System::setCallback("receive_data", receive_data);
   cavr::input::InputMap input_map;
-  //input_map.button_map["exit"] = "keyboard[Escape]";
+  input_map.button_map["exit"] = "keyboard[Escape]";
+  input_map.button_map["color"] = "keyboard[a]";
   //input_map.button_map["color"] = "vrpn[Button0[0]]";
   //input_map.sixdof_map["wand"] = "emulated_wand";
-  //input_map.sixdof_map["wand"] = "vrpn[Tracker0[0]]";
+  input_map.sixdof_map["wand"] = "vrpn[tracker0[0]]";
   input_map.analog_map["rotation"] = "keyboard[analog[y0]]";
   if (!cavr::System::init(argc, argv, &input_map)) {
-    LOG(ERROR) << "Failed to initialize cavr.";
+   LOG(ERROR) << "Failed to initialize cavr.";
     return -1;
   }
   LOG(INFO) << "Successfully initialized cavr.";

@@ -98,7 +98,7 @@ bool System::init(int argc,
         continue;
       }
       std::string ssh_target = 
-        global_config.get<std::string>("machines." + n + "ssh");
+        global_config.get<std::string>("machines." + n + ".ssh");
       std::string remote_command =
         "cd " + cwd + " &&";
       for (int i = 0; i < argc; ++i) {
@@ -270,7 +270,7 @@ void System::run() {
   auto update_thread = [=]() {
     while (!System::terminated()) {
       if (master) {
-        input::InputManager::setSyncData("");
+        input::InputManager::setSyncData(" ");
         pubsub_function();
       }
       if (!input::InputManager::sync()) {

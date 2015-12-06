@@ -35,10 +35,12 @@ bool getFramebufferConfig(::Display* display,
     GLX_DOUBLEBUFFER, True 
   });
   if (stereo) {
+    LOG(ERROR) << "STEREONESS HAHAHA YES";
     visual_attribs.push_back(GLX_STEREO);
     visual_attribs.push_back(True);
   }
   visual_attribs.push_back(None);
+  
 
   int num_configs = 0;
   GLXFBConfig* framebuffer_configs =
