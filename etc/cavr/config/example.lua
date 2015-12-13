@@ -43,14 +43,14 @@ vrpn = {
   analogs = {
   };
   sixdofs = {
-    "tracker0@tracker.rd.unr.edu"
+    --"tracker0@tracker.rd.unr.edu"
   };
 };
 
 self = {
-  hostname = "hpcvis5";
-  ssh = "hpcvis5";--"chase@" .. HOSTNAME;
-  address = "hpcvis5";
+  hostname = HOSTNAME;
+  ssh = HOSTNAME;--"chase@" .. HOSTNAME;
+  address = HOSTNAME;
   plugins = {
     x11_renderer = x11_renderer;
     vrpn = vrpn;
@@ -77,6 +77,7 @@ others2 = {
     vrpn = vrpn;
   };
 };
+
 
 machines = {
   self=self;
