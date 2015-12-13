@@ -80,6 +80,6 @@ others2 = {
 
 machines = {
   self=self;
-  self2 = others;
-  self3 = others2;
+  --self2 = others;
+  --self3 = others2;
 };

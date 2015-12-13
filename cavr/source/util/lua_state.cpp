@@ -1,5 +1,6 @@
 #include <cavr/input/input_manager.h>
 #include <cavr/util/environment.h>
+
 #include <cavr/util/lua_state.h>
 #include <cavr/util/string.h>
 #include <cavr/util/swigluart.h>
