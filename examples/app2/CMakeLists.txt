@@ -5,8 +5,10 @@ INCLUDE_DIRECTORIES(
     ${CAVR_INCLUDES}
     "${cavrgl_SOURCE_DIR}/include"
     "${cavrgfx_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/include"
 )
 
+LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/lib")
 
 ADD_EXECUTABLE(example_app2 app.cpp)
 
@@ -22,4 +24,4 @@ add_custom_target(BUILD_SUCCESSFUL ALL
                   COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/shader.vert ${CMAKE_CURRENT_BINARY_DIR}
                  )
 
-TARGET_LINK_LIBRARIES(example_app2 cavr cavrgl cavrgfx)
+TARGET_LINK_LIBRARIES(example_app2 cavr cavrgl cavrgfx IrrKlang)

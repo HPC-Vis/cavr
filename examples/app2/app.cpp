@@ -5,6 +5,13 @@
 #include <cavr/gl/vao.h>
 #include <cavr/gl/vbo.h>
 #include <glog/logging.h>
+#include <math.h>
+#include "include/irrKlang.h"
+using namespace irrklang;
+
+#pragma comment(lib, "irrKlang.lib")
+
+
 
 struct ContextData {
   cavr::gl::Program* simple_program;
@@ -21,10 +28,21 @@ struct ContextData {
   cavr::gl::VAO* cube_vao;
   cavr::gl::VBO* cube_vbo;
   float cube_angle;
+  // Lets add some sound library stuff here
+   ISoundEngine* engine;
+   ISound* music; 
 };
 
 void initContext() {
   ContextData* cd = new ContextData();
+
+  // Initialize some irrklang music
+  cd->engine = createIrrKlangDevice();
+  cd->music = cd->engine->play3D("media/getout.ogg",
+    vec3df(15,1,0), // Music source position
+    true, // play looped
+    false, //  start paused
+    true); //  enable sound
   cd->simple_program = cavr::gl::Program::createSimple();
   
   // Create a program
@@ -67,7 +85,7 @@ void initContext() {
   std::vector<cavr::math::vec4f> cubeTriangles = cavr::gfx::Shapes::wireCube();
   cd->num_triangles_in_cube = cubeTriangles.size();
 
-  cd->cube_vbo = new cavr::gl::VBO(cubeTriangles);
+  cd->cube_vbo = new cavr::gl::VBO(cubeTriangles,GL_STATIC_DRAW);
   cd->cube_vao = new cavr::gl::VAO();
   cd->cube_vao->setAttribute(cd->cube_program->getAttribute("pos"),
     cd->cube_vbo,
@@ -112,7 +130,9 @@ void render() {
   glUniformMatrix4fv(cd->view_uniform, 1, GL_FALSE, cavr::gfx::getView().v);
   auto model = mat4f::translate(0, 1, 0) * mat4f::scale(0.1);
   glUniformMatrix4fv(cd->model_uniform, 1, GL_FALSE, model.v);
-  if (cavr::input::getButton("color")->delta() == cavr::input::Button::Held) {
+  auto rot = cavr::math::mat4f::rotate(cd->cube_angle,cavr::math::vec3f(0,1,0)) * cavr::math::vec4f(0,0,1,1);
+
+  if (cavr::input::getButton("color")->delta() == cavr::input::Button::Held || (abs(rot.xyz.dot(cavr::math::vec3f(0,0,1))) < .1) ) {
     glUniform3f(cd->color_uniform, 0, 0, 1);
   } else {
     glUniform3f(cd->color_uniform, 1, 0, 0);
@@ -129,10 +149,15 @@ void render() {
   //LOG(ERROR) << cavr::input::InputManager::dt() << endl;
   cd->cube_angle += 3.14/4.0 * cavr::input::InputManager::dt()*1000;
   LOG(INFO) << cd->cube_angle;
+  
+  
+  cd->engine->setListenerPosition(vec3df(0,1,0),
+  vec3df(rot.x,rot.y,rot.z));
+
   glUniformMatrix4fv(cd->mvp_uniform, 1, GL_FALSE, (cavr::gfx::getProjection() * cavr::gfx::getView() * model * cavr::math::mat4f::rotate(cd->cube_angle,cavr::math::vec3f(0,1,0))).v );
   //LOG(ERROR) << cd->num_triangles_in_cube;
   
-  glDrawArrays(GL_TRIANGLES,0,cd->num_triangles_in_cube);
+  glDrawArrays(GL_LINES,0,cd->num_triangles_in_cube);
   glBindVertexArray(0);
   cd->cube_program->end();
 }
