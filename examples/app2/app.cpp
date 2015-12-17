@@ -6,49 +6,62 @@
 #include <cavr/gl/vbo.h>
 #include <glog/logging.h>
 #include <math.h>
-#include "include/irrKlang.h"
+
+// Using IrrKlang for this example
+#include <irrKlang.h>
 using namespace irrklang;
 
 #pragma comment(lib, "irrKlang.lib")
+// IrrKlang
 
 
-
+// Context Data used for this example
 struct ContextData {
+  // Shader Programs
   cavr::gl::Program* simple_program;
   cavr::gl::Program* cube_program;
+
+  // Uniforms
   GLint color_uniform;
   GLint projection_uniform;
   GLint view_uniform;
   GLint model_uniform;
   GLint mvp_uniform;
+
+  // VBOs and
   cavr::gl::VAO* sphere_vao;
   cavr::gl::VBO* sphere_vbo;
-  size_t num_triangles_in_sphere;
-  size_t num_triangles_in_cube;
   cavr::gl::VAO* cube_vao;
   cavr::gl::VBO* cube_vbo;
+  size_t num_triangles_in_sphere;
+  size_t num_triangles_in_cube;
+
+  // Rotating angle
   float cube_angle;
+
   // Lets add some sound library stuff here
    ISoundEngine* engine;
    ISound* music; 
 };
 
+// Initialize our program
 void initContext() {
   ContextData* cd = new ContextData();
 
   // Initialize some irrklang music
   cd->engine = createIrrKlangDevice();
-  cd->music = cd->engine->play3D("media/getout.ogg",
+  cd->music = cd->engine->play3D("media/136608__thesoundcatcher__wind-in-small-forrest-01.wav",
     vec3df(15,1,0), // Music source position
     true, // play looped
     false, //  start paused
     true); //  enable sound
+
   cd->simple_program = cavr::gl::Program::createSimple();
   
-  // Create a program
+  // Create a program using some custom code of ours
   cd->cube_program = new cavr::gl::Program();
 
-  // Add shaders
+  // custom shader initialization
 
   cavr::gl::VertexShader* vs = cavr::gl::VertexShader::fromFile("shader.vert");
   if (!vs) {
@@ -80,6 +93,7 @@ void initContext() {
   delete vs;
   delete fs;
 
+  
   cd->mvp_uniform = cd->cube_program->getUniform("mvp");
 
   std::vector<cavr::math::vec4f> cubeTriangles = cavr::gfx::Shapes::wireCube();
@@ -99,6 +113,8 @@ void initContext() {
   cd->projection_uniform = cd->simple_program->getUniform("projection");
   cd->view_uniform = cd->simple_program->getUniform("view");
   cd->model_uniform = cd->simple_program->getUniform("model");
+
+  // Simple shader shader vbo and vao initialization
   std::vector<cavr::math::vec4f> sphere_vertices = 
     cavr::gfx::Shapes::solidSphere(30, 30);
   cd->num_triangles_in_sphere = sphere_vertices.size();
@@ -111,6 +127,8 @@ void initContext() {
                                0,
                                0,
                                0);
+
+  // set context data
   cavr::System::setContextData(cd);
 }
 
@@ -122,8 +140,11 @@ void render() {
   using cavr::math::mat4f;
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  // get the context data
   ContextData* cd = (ContextData*)cavr::System::getContextData();
+
+  // use the simple program
   cd->simple_program->begin();
   cd->sphere_vao->bind();
   glUniformMatrix4fv(cd->projection_uniform, 1, GL_FALSE, cavr::gfx::getProjection().v);
@@ -132,11 +153,14 @@ void render() {
   glUniformMatrix4fv(cd->model_uniform, 1, GL_FALSE, model.v);
   auto rot = cavr::math::mat4f::rotate(cd->cube_angle,cavr::math::vec3f(0,1,0)) * cavr::math::vec4f(0,0,1,1);
 
+  // Check if a button has been pressed
   if (cavr::input::getButton("color")->delta() == cavr::input::Button::Held || (abs(rot.xyz.dot(cavr::math::vec3f(0,0,1))) < .1) ) {
     glUniform3f(cd->color_uniform, 0, 0, 1);
   } else {
     glUniform3f(cd->color_uniform, 1, 0, 0);
   }
+
+  // draw the sphere for the simple program
   glDrawArrays(GL_TRIANGLES, 0, cd->num_triangles_in_sphere);
   glBindVertexArray(0);
   cd->simple_program->end();  
@@ -145,18 +169,18 @@ void render() {
   // Cube Program
   cd->cube_program->begin();
   cd->cube_vao->bind();
-  //cout << "HERE YALL" << endl;
-  //LOG(ERROR) << cavr::input::InputManager::dt() << endl;
+   
+  // set cube angle
   cd->cube_angle += 3.14/4.0 * cavr::input::InputManager::dt()*1000;
-  LOG(INFO) << cd->cube_angle;
   
-  
+  // Set your current 
   cd->engine->setListenerPosition(vec3df(0,1,0),
   vec3df(rot.x,rot.y,rot.z));
 
+  // rotate cube 
   glUniformMatrix4fv(cd->mvp_uniform, 1, GL_FALSE, (cavr::gfx::getProjection() * cavr::gfx::getView() * model * cavr::math::mat4f::rotate(cd->cube_angle,cavr::math::vec3f(0,1,0))).v );
-  //LOG(ERROR) << cd->num_triangles_in_cube;
-  
+
+  // draw cube
   glDrawArrays(GL_LINES,0,cd->num_triangles_in_cube);
   glBindVertexArray(0);
   cd->cube_program->end();
@@ -182,19 +206,26 @@ int main(int argc, char** argv) {
   cavr::System::setCallback("gl_render", render);
   cavr::System::setCallback("destruct_gl_context", destructContext);
   cavr::input::InputMap input_map;
+
+  // set input map for buttons,keyboard, and sixdofs 
   input_map.button_map["exit"] = "keyboard[Escape]";
   //input_map.button_map["color"] = "vrpn[Button0[0]]";
   //input_map.sixdof_map["wand"] = "emulated_wand";
   //input_map.sixdof_map["wand"] = "vrpn[Tracker0[0]]";
   input_map.analog_map["rotation"] = "keyboard[analog[y0]]";
+
   if (!cavr::System::init(argc, argv, &input_map)) {
     LOG(ERROR) << "Failed to initialize cavr.";
     return -1;
   }
+
   LOG(INFO) << "Successfully initialized cavr.";
   LOG(INFO) << "Callbacks set.";
   LOG(INFO) << "Starting simulation.";
+
+  // run cavr
   cavr::System::run();
+
   LOG(INFO) << "Shutting down.";
   return 0;
 }
