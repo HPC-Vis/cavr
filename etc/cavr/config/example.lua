@@ -2,12 +2,14 @@ sim_window = {
   view = {
     simulator_view = true;
   };
+fullscreen = true;
 };
 
 sim_window = {
   view = {
     simulator_view = true;
   };
+fullscreen = true;
 };
 
 perspective_window = {
@@ -22,17 +24,39 @@ perspective_window = {
     lower_right = cavr.sixdof("emulated") * cavr.translate(1, -1, -1);
     upper_left = cavr.sixdof("emulated") * cavr.translate(-1, 1, -1);
   };
+  fullscreen = true;
 };
 
 x11_renderer = {
   type = "x11gl";
   display = ":0.0";
   windows = {
-    sim_window = sim_window;
+    --sim_window = sim_window;
     sim_window2 = sim_window;
-    perspective_window = perspective_window;
+
   };
 };
+
+x11_renderer2 = 
+{
+   type = "x11gl";
+   display = ":0.1";
+   windows = 
+   {
+      sim_window = sim_window;
+   };
+}
+
+x11_renderer3 = 
+{
+   type = "x11gl";
+   display = ":0.2";
+   windows = 
+   {
+    perspective_window = perspective_window;
+      --sim_window = sim_window;
+   };
+}
 
 vrpn = {
   type = "vrpn";
@@ -52,6 +76,8 @@ self = {
   ssh = HOSTNAME;--"chase@" .. HOSTNAME;
   address = HOSTNAME;
   plugins = {
+    x11_renderer3 = x11_renderer3;
+    x11_renderer2 = x11_renderer2;
     x11_renderer = x11_renderer;
     vrpn = vrpn;
   };
