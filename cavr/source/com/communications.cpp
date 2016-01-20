@@ -2,10 +2,36 @@
 #include <glog/logging.h>
 #include <zmq.h>
 
+//#ifndef ZMQ_DONTWAIT
+//#define ZMQ_DONTWAIT   ZMQ_NOBLOCK
+//#endif
+#ifndef ZMQ_RCVHWM
+#define ZMQ_RCVHWM     ZMQ_HWM
+#endif
+#ifndef ZMQ_SNDHWM
+#define ZMQ_SNDHWM     ZMQ_HWM
+#endif
+#if ZMQ_VERSION_MAJOR == 2
+#define more_t int64_t
+#define zmq_ctx_destroy(context) zmq_term(context)
+#define zmq_msg_send(msg,sock,opt) zmq_send (sock, msg, opt)
+#define zmq_msg_recv(msg,sock,opt) zmq_recv (sock, msg, opt)
+#define ZMQ_POLL_MSEC    1000        //  zmq_poll is usec
+#elif ZMQ_VERSION_MAJOR == 3
+#define more_t int
+#define ZMQ_POLL_MSEC    1           //  zmq_poll is msec
+#endif
+
+
+
+
 namespace cavr {
 
 namespace com {
 
+
+#define zmq_send(sock,msg,opt) zmq_msg_send(msg, sock, opt) 
+#define zmq_recv(sock,msg,opt) zmq_msg_recv(msg, sock, opt) 
 Socket::Socket(void* socket)
   : zmq_socket_(socket) {
 }
@@ -17,8 +43,11 @@ bool Socket::send(const std::string& data) {
     return false;
   }
   std::copy(data.begin(), data.end(), (char*)zmq_msg_data(&msg));
-  bool result = 0 == zmq_send(zmq_socket_, &msg, 0);
+  int status = zmq_send(zmq_socket_, &msg, 0);
+  bool result = -1 != status;
+  //LOG(ERROR) << "Send Status: " << status;
   if (!result) {
+    LOG(ERROR) << "ERROR CODE!!!: " << zmq_strerror(errno);
     LOG(ERROR) << "zmq_send failed";
   }
   zmq_msg_close(&msg);
@@ -31,10 +60,13 @@ bool Socket::recv(std::string& data) {
     LOG(ERROR) << "Could not initialize ZMQ message";
     return false;
   }
-  bool result = 0 == zmq_recv(zmq_socket_, &msg, 0);
+  int status = zmq_recv(zmq_socket_, &msg, 0);
+  bool result = -1 != status;
+  //LOG(ERROR) << "Receive Status: " << status;
   if (result) {
     data = std::string((char*)zmq_msg_data(&msg), zmq_msg_size(&msg));
   } else {
+    LOG(ERROR) << "ERROR CODE!!: " << zmq_strerror(errno);
     LOG(ERROR) << "zmq_recv failed";
   }
   zmq_msg_close(&msg);

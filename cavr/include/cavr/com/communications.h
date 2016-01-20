@@ -4,6 +4,7 @@
 namespace cavr {
 
 namespace com {
+#include <zmq.h>
 
 class Socket {
 public:

@@ -95,3 +95,82 @@ TEST(configuration_specification, bad_buffer) {
                                                     "test");
   ASSERT_EQ(nullptr, missing_requirement_spec);
 }
+
+
+
+
+
+
+TEST(configuration_specification, from_buffer_test) {
+  const char* buffer =
+  "a = { a = { required = true; type = \"number\";  default = 4.0; };     };"
+  "b = { b =  { required = true; type = \"string\"; }; };"
+  "  test = {"
+   "ab = {"
+   " required = true;"
+   " type = \"one_of\";"
+   " possibilities = {"
+   "   one = a;"
+   "   two = b;"
+   " }; };"
+  " }";
+  
+  const char* buffer2 =
+  "bas = {ab = {a=4441;}; }";
+  cavr::config::Configuration global_config;
+  
+  ConfigurationSpecification* spec =
+    ConfigurationSpecification::createFromLuaBuffer(buffer, "test");
+  ASSERT_NE(nullptr, spec);
+  const auto& parameter_map = spec->getMap();
+  EXPECT_EQ(1, parameter_map.size());
+
+    auto
+    plugins_file_reader = cavr::config::LuaReader::createFromBuffer(buffer2);
+    
+  if (!spec->configure(plugins_file_reader,
+                              "bas",
+                              &global_config)) {
+    LOG(ERROR) << "Failed to get global configuration.";
+    FAIL();
+  }
+  //LOG(INFO) << "AFTER";
+}
+
+
+
+TEST(configuration_specification2, from_buffer_test2) {
+  const char* buffer =
+  "a = { a = { required = true; type = \"number\";  default = 4.0; };     };"
+  "b = { b =  { required = true; type = \"string\"; }; };"
+  "  test = {"
+   "ab = {"
+   " required = true;"
+   " type = \"one_of\";"
+   " possibilities = {"
+   "   one = a;"
+   "   two = b;"
+   " }; };"
+  " }";
+  
+  const char* buffer2 =
+  "bas = {ab = {a=4441;}; }";
+  cavr::config::Configuration global_config;
+  
+  ConfigurationSpecification* spec =
+    ConfigurationSpecification::createFromLuaFile("./test.txt", "test");
+  ASSERT_NE(nullptr, spec);
+  const auto& parameter_map = spec->getMap();
+  EXPECT_EQ(1, parameter_map.size());
+
+    auto
+    plugins_file_reader = cavr::config::LuaReader::createFromFile("./test2.txt");
+    
+  if (!spec->configure(plugins_file_reader,
+                              "bas",
+                              &global_config)) {
+    LOG(ERROR) << "Failed to get global configuration.";
+    FAIL();
+  }
+  //LOG(INFO) << "AFTER";
+}

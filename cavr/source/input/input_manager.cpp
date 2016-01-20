@@ -75,6 +75,7 @@ bool InputManager::initialize(com::Socket* sync_socket,
   };
   if (master) {
     for (int i = 0; i < num_machines - 1; ++i) {
+      //exit(0);
       std::string packet;
       if (!sync_socket->recv(packet)) {
         LOG(ERROR) << "Failed to receive device inputs";
@@ -83,7 +84,7 @@ bool InputManager::initialize(com::Socket* sync_socket,
       com::DeviceInputs di;
       di.ParseFromString(packet);
       add_device_inputs(di);
-      if (!sync_socket->send("")) {
+      if (!sync_socket->send(" ")) {
         LOG(ERROR) << "Failed to send sync signal";
         return false;
       }
@@ -137,17 +138,32 @@ bool InputManager::initialize(com::Socket* sync_socket,
 bool InputManager::sync() {
   if (data_.master) {
     for (int i = 0; i < data_.num_machines - 1; ++i) {
-      std::string sync_packet;
+      std::string sync_packet = " ";
       if (!data_.sync_socket->recv(sync_packet)) {
         LOG(ERROR) << "Failed to recv sync";
         return false;
       }
+      else
+      {
+        //LOG(ERROR) << "HERE NOW";
+        if(!data_.sync_socket->send(sync_packet))
+        {
+          LOG(ERROR) << "INSERT WIN MESSAGE NOT";
+          return false;
+        } 
+      }
+   
     }
   } else {
-    std::string sync_packet;
+    std::string sync_packet=" ";
     if (!data_.sync_socket->send(sync_packet)) {
       LOG(ERROR) << "Failed to send sync";
       return false;
+    }
+    if(!data_.sync_socket->recv(sync_packet))
+    {
+         LOG(ERROR) << "INSERT FAIL MESSAGE HERE";
+	 return false;
     }
   }
 
@@ -188,6 +204,11 @@ bool InputManager::sync() {
       LOG(ERROR) << "Failed to receive device sync";
       return false;
     }
+    else
+    {
+    //LOG(ERROR) << "RECIEVED";
+    //LOG(ERROR) << packet;
+    }
     device_sync.ParseFromString(packet);
     data_.dt = device_sync.dt();
     data_.sync_data = device_sync.user_data();
@@ -197,12 +218,14 @@ bool InputManager::sync() {
     for (int i = 0; i < device_sync.analogs_size(); ++i) {
       data_.analogs[i]->syncState(device_sync.analogs(i));
     }
+    //LOG(ERROR) << device_sync.sixdofs_size();
     for (int i = 0; i < device_sync.sixdofs_size() / 16; ++i) {
       math::mat4d m;
       int k = i * 16;
       for (int j = 0; j < 16; ++j) {
         m.v[j] = device_sync.sixdofs(k + j);
       }
+      data_.sixdofs[i]->syncState(m);
     }
   }
   return true;
