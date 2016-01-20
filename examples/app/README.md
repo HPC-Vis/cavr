@@ -29,14 +29,14 @@ In order to build this example you should follow the instructions in the root ca
 Once you have followed those instructions. All you will have to simply do is go to where the executable has been built and run the code. Like the following:
 
 ```bash
-cd build/examples/app2/
-./example_app2
+cd build/examples/app/
+./example_app
 ```
 
 You may find issues if you did not set up the CAVR_PLUGIN_PATH. You will notice that the application is unable to render anything. A simple remdey is to either set up the CAVR_PLUGIN_PATH or move the plugins required for running this example to the same directory as example_app2. Here is an example of getting that to work.
 
 ```bash
-# Run this command from the directory that contains example_app2
+# Run this command from the directory that contains example_app
 cp ../../lib/plugins/lib* .
 ```
 
