@@ -22,11 +22,23 @@ You will need to get the dependencies list above to compile cavr, but the instru
 
     Here are a few lines of bash to acquire the dependencies for Ubuntu 14.04:
     ```bash
-    sudo apt-get install -y libgflags-dev libgoogle-glog-dev protobuf-compiler libprotobuf-dev swig libzmq-dev liblua5.1-dev     cmake
+    sudo apt-get install -y libgflags-dev libgoogle-glog-dev protobuf-compiler libprotobuf-dev swig libzmq-dev liblua5.1-dev cmake
     
-    # Or you can use depend.sh
-    sh depend.sh
+    # now to get vrpn setup
+    git submodule init
+    git submodule update
+    
+    # now to build and make vrpn
+    cd vrpn
+    mkdir build
+    cd build
+    cmake ..
+    make -j 8
+    
+    # now install vrpn (make sure you have sudo rights)
+    sudo make install
     ```
+    
     You will need sudo preveileges to install these packages. 
     With these packages now installed you should be able to compile cavr.
 
@@ -48,7 +60,7 @@ You will need to get the dependencies list above to compile cavr, but the instru
     # Time to compile cavr
     make -j 4 # If you want cavr to compile fast, I highly suggest a -j # to have make run parallel jobs.
 
-    # now lets install cavr -- 
+    # now lets install cavr -- run this if you have rights to
     make install # this will install in your /usr/local/lib and /usr/local/include
 
     # or you could install for all users
@@ -66,9 +78,9 @@ You will need to get the dependencies list above to compile cavr, but the instru
     
     Here is a example bash script that sets this path environment variables:
     ```bash
-    CAVR_PATH=path to cavr
-    CAVR_PLUGIN_PATH=path to cavr plugins
-    CAVR_ETC_PATH=path to cavr's schemas and configs
+    CAVR_PATH=path to cavr (exp. ~/Desktop/cavr/build/cavr)
+    CAVR_PLUGIN_PATH=path to cavr plugins (exp. ~/Desktop/cavr/build/lib/plugins 
+    CAVR_ETC_PATH=path to cavr's schemas and configs (exp. ~/Desktop/cavr/etc)
     export CAVR_PATH
     export CAVR_PLUGIN_PATH
     export CAVR_ETC_PATH
@@ -78,9 +90,11 @@ You will need to get the dependencies list above to compile cavr, but the instru
     
     ** Running the code **
     
-    There are two examples provide with cavr that can be used as a starting point.
+    There is one example provide with cavr that can be used as a starting point.
     
     Example two or app2 in the examples directory has directions on how to run it. 
+    
+    Please see the examples/app directory for more information on how to run the examples.
     
 # Using VRPN with CAVR
 
