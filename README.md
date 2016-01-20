@@ -78,9 +78,9 @@ You will need to get the dependencies list above to compile cavr, but the instru
     
     ** Running the code **
     
-    There are two examples provide with this code that you can use to get started.
+    There are two examples provide with cavr that can be used as a starting point.
     
-    This section will be filled in later.
+    Example two or app2 in the examples directory has directions on how to run it. 
     
 # Using VRPN with CAVR
 

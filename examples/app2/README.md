@@ -45,7 +45,8 @@ cp ../../lib/plugins/lib* .
 In this example you will see a spinning wireframe cube with a sphere inside. There should also be a windy noise that is occuring. You should hear the noise going from left to right in your speakers or head phones. In this example a sound source is placed next to the spinning cube and the sphere inside lights up when the sound is about to go from one speaker to the other. The cone placed at the bottom is a camera used to give another vantage point into the world. Initialially there will be three windows stacked on top of each other. The first window is the cone's vantage point.
 
 Here is what the example should generate (three windows):
-[Screen Shot]
+
+![shapes](exampleout.png)
 
 **Initializing the example**
 
