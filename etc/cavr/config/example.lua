@@ -37,27 +37,6 @@ x11_renderer = {
   };
 };
 
-x11_renderer2 = 
-{
-   type = "x11gl";
-   display = ":0.1";
-   windows = 
-   {
-      sim_window = sim_window;
-   };
-}
-
-x11_renderer3 = 
-{
-   type = "x11gl";
-   display = ":0.2";
-   windows = 
-   {
-    perspective_window = perspective_window;
-      --sim_window = sim_window;
-   };
-}
-
 vrpn = {
   type = "vrpn";
   input_name = "vrpn";
@@ -76,8 +55,6 @@ self = {
   ssh = HOSTNAME;--"chase@" .. HOSTNAME;
   address = HOSTNAME;
   plugins = {
-    x11_renderer3 = x11_renderer3;
-    x11_renderer2 = x11_renderer2;
     x11_renderer = x11_renderer;
     vrpn = vrpn;
   };
