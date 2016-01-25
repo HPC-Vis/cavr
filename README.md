@@ -3,6 +3,8 @@ cavr
 
 A fancy VR library.
 
+The cavr demo is in examples/app2. When you have setup up cavr in the build file make sure to run the example in build/examples/app2.
+
 #Core Dependencies
 
 In addition to a compiler that supports C++11, cavr uses the following tools and headers to build. Depending on your OS, some of these tools can be installed through a package manager.
