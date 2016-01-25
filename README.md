@@ -47,8 +47,8 @@ You will need to get the dependencies list above to compile cavr, but the instru
     In order to build cavr you will need to use cmake to have it build a bunch of makefiles. Once cmake has made the files,     you will be able to compile cavr and install it. Here are a few lines of bash:
 
     ```bash
-    # Change to cavr directory
-    cd cavr
+    # Change to the base cavr directory
+    cd ~/cavr
 
     # make a build directory -- This is the author's personal preference for cmake.
     mkdir build
