@@ -97,6 +97,8 @@ INSTALL(DIRECTORY include/cavr
         DESTINATION include
         FILES_MATCHING PATTERN "*.h")
 
+INSTALL(TARGETS cavr LIBRARY DESTINATION lib)
+
 IF(UNIX)
 #	TARGET_LINK_LIBRARIES(cavr_spec pthread dl)
 #	TARGET_LINK_LIBRARIES(cavr_sim pthread dl ${ADDITIONAL_LIBS})
