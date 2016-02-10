@@ -9,7 +9,8 @@ const std::string SixDOF::type_name("SixDOF");
 
 SixDOF::SixDOF() 
   : state_(1.0),
-    live_state_(1.0) {
+    live_state_(1.0),
+    reverse(false) {
 }
 
 math::vec3d SixDOF::getPosition() const {
@@ -22,6 +23,9 @@ math::vec3d SixDOF::getPosition() const {
 math::vec3d SixDOF::getForward() const {
   sync_lock_.readLock();
   math::vec3d result = -state_[2].xyz;
+  if(reverse) {
+    result = -result;
+  }
   sync_lock_.readUnlock();
   return result;
 }
@@ -29,6 +33,9 @@ math::vec3d SixDOF::getForward() const {
 math::vec3d SixDOF::getBackward() const {
   sync_lock_.readLock();
   math::vec3d result = state_[2].xyz;
+  if(reverse) {
+    result = -result;
+  }
   sync_lock_.readUnlock();
   return result;
 }
@@ -36,6 +43,9 @@ math::vec3d SixDOF::getBackward() const {
 math::vec3d SixDOF::getLeft() const {
   sync_lock_.readLock();
   math::vec3d result = -state_[0].xyz;
+  if(reverse) {
+    result = -result;
+  }
   sync_lock_.readUnlock();
   return result;
 }
@@ -43,6 +53,9 @@ math::vec3d SixDOF::getLeft() const {
 math::vec3d SixDOF::getRight() const {
   sync_lock_.readLock();
   math::vec3d result = state_[0].xyz;
+  if(reverse) {
+    result = -result;
+  }
   sync_lock_.readUnlock();
   return result;
 }
@@ -50,6 +63,9 @@ math::vec3d SixDOF::getRight() const {
 math::vec3d SixDOF::getUp() const {
   sync_lock_.readLock();
   math::vec3d result = state_[1].xyz;
+  if(reverse) {
+    result = -result;
+  }
   sync_lock_.readUnlock();
   return result;
 }
@@ -57,6 +73,9 @@ math::vec3d SixDOF::getUp() const {
 math::vec3d SixDOF::getDown() const {
   sync_lock_.readLock();
   math::vec3d result = -state_[1].xyz;
+  if(reverse) {
+    result = -result;
+  }
   sync_lock_.readUnlock();
   return result;
 }
@@ -64,6 +83,17 @@ math::vec3d SixDOF::getDown() const {
 math::mat4d SixDOF::getMatrix() const {
   sync_lock_.readLock();
   math::mat4d m = state_;
+  if(reverse) {
+    m[0][0] *= -1;
+    m[0][1] *= -1;
+    m[0][2] *= -1;
+    m[1][0] *= -1;
+    m[1][1] *= -1;
+    m[1][2] *= -1;
+    m[2][0] *= -1;
+    m[2][1] *= -1;
+    m[2][2] *= -1;
+  }
   sync_lock_.readUnlock();
   return m;
 }
@@ -85,6 +115,10 @@ void SixDOF::sync() {
   math::mat4d m = live_state_;
   live_lock_.readUnlock();
   syncState(m);
+}
+
+void SixDOF::setReverse(bool rev) {
+  reverse = rev;
 }
 
 } // namespace input

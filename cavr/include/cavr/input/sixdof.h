@@ -23,11 +23,13 @@ public:
   void setState(const math::mat4d& m);
   void syncState(const math::mat4d& m);
   void sync();
+  void setReverse(bool rev);
 private:
   mutable cavr::Lock sync_lock_;
   mutable cavr::Lock live_lock_;
   math::mat4d state_;
   math::mat4d live_state_;
+  bool reverse;
 };
 
 } // namespace input
