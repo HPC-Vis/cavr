@@ -270,7 +270,6 @@ void System::run() {
   auto update_thread = [=]() {
     while (!System::terminated()) {
       if (master) {
-        input::InputManager::setSyncData(" ");
         pubsub_function();
       }
       if (!input::InputManager::sync()) {

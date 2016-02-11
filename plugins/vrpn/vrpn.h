@@ -30,6 +30,7 @@ private:
     std::map<int, T*> input_map;
     std::string element_name;
     VRPN* vrpn;
+    bool ReverseMatrix;
   };
 };
 

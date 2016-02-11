@@ -1,5 +1,6 @@
 #include <quat.h>
 #include "vrpn.h"
+#include <iostream>
 using cavr::config::ConfigurationSpecification;
 
 namespace vrpn {
@@ -47,10 +48,23 @@ bool VRPN::init(cavr::config::Configuration& config) {
     analogs_.push_back(b);
   }
   for (auto sixdof_address : sixdof_addresses) {
-    vrpn_Tracker_Remote* b = new vrpn_Tracker_Remote(sixdof_address.c_str());
+    string Bool,sixdof_string;
+    cavr::util::String::split(sixdof_address, ":", sixdof_string,Bool);
+    vrpn_Tracker_Remote* b = new vrpn_Tracker_Remote(sixdof_string.c_str());
     auto data = new CallbackData<cavr::input::SixDOF>();
     std::string server;
-    cavr::util::String::split(sixdof_address, "@", data->element_name, server);
+    cavr::util::String::split(sixdof_string, "@", data->element_name, server);
+    
+    
+
+    data->ReverseMatrix = false;
+    if (Bool == "1")
+    {
+      data->ReverseMatrix = true;
+    }
+    std::cout << server << std::endl;
+    std::cout << data->element_name << std::endl;
+
     data->vrpn = this;
     b->register_change_handler(data, sixdofCallback);
     trackers_.push_back(b);
@@ -108,7 +122,14 @@ void VRPN::sixdofCallback(void* d, const vrpn_TRACKERCB t) {
   }
   if (result->second) {
     q_matrix_type qm;
-    q_to_col_matrix(qm, t.quat);
+    if(!data->ReverseMatrix)
+    {
+      q_to_col_matrix(qm, t.quat);
+    }
+    else
+    {
+      q_to_row_matrix(qm, t.quat);
+    }
     cavr::math::mat4f m;
     for (int i = 0; i < 4; ++i) {
       for (int j = 0; j < 4; ++j) {
